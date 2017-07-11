@@ -154,15 +154,10 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
                     
                     isSetToEditingMode = false
                     isSetToRearrangeMode = false
-                    
-
+                
                 } else {
-                
-                    
                     isSetToRearrangeMode = true
-                    
                 }
-                
                 
             } else {
                 isSetToEditingMode = true
@@ -323,9 +318,6 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
     
     
     
-    
-
-
     // MARK: - UICollectionViewDelegate
 
     /*

@@ -98,25 +98,19 @@ class StepCell: UICollectionViewCell {
     }
     
     
-    var xShadowColor: UIColor = .black
-    var xShadowOffset: CGSize = CGSize(width: 2.0, height: 6.0)
-    var xShadowRadius: CGFloat = 8
-    var xShadowOpacity: Float = 0.8
     var xIsHidden: Bool = false {
         didSet {
             xIsHidden ? x.fadeOut(duration: 0.2) : x.fadeIn(duration: 0.2)
         }
     }
     
-    var lockShadowColor: UIColor = .black
-    var lockShadowOffset: CGSize = CGSize(width: 2.0, height: 6.0)
-    var lockShadowRadius: CGFloat = 8
-    var lockShadowOpacity: Float = 0.8
+    
     var lockIsHidden: Bool = false {
         didSet {
             lockIsHidden ? lock.fadeOut(duration: 0.2) : lock.fadeIn(duration: 0.2)
         }
     }
+    
     
     var plusTintColor: UIColor = .lightGray
     var plusIsHidden: Bool = false {
@@ -124,6 +118,7 @@ class StepCell: UICollectionViewCell {
             plusIsHidden ? plus.fadeOut(duration: 0.2) : plus.fadeIn(duration: 0.2)
         }
     }
+    
     
     var isTheFirstCell: Bool = false {
         
@@ -248,10 +243,7 @@ class StepCell: UICollectionViewCell {
     
     func configureXView() {
         
-        x.layer.shadowColor = xShadowColor.cgColor
-        x.layer.shadowOffset = xShadowOffset
-        x.layer.shadowRadius = xShadowRadius
-        x.layer.shadowOpacity = xShadowOpacity
+        x = x.shaded as! UIButton
     }
     
     
