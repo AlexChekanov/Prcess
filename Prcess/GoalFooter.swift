@@ -198,7 +198,7 @@ class GoalFooter: UICollectionReusableView {
             
             // We can have multiple words of the equal characters count but different width when the font is applied
 
-            let maxWordsCharacterCount = textToCalculate.maxWord.characters.count
+            let maxWordsCharacterCount = textToCalculate.longestWord.characters.count
             let allLongWords: [String] = textToCalculate.wordList.filter {$0.characters.count == maxWordsCharacterCount}
             
             var sizes: [CGFloat] = []

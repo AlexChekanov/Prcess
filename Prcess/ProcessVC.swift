@@ -11,7 +11,9 @@ import UIKit
 private let reuseCellIdentifier = "Step"
 private let reuseFooterIdentifier = "Goal"
 
-class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UICollectionViewDelegateFlowLayout {
+class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
+    
+    let lpgr = UILongPressGestureRecognizer()
     
     // MARK: - Variables
     
@@ -24,8 +26,8 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
                 let cell = $0 as! StepCell
                 
                 cell.isSetToEditingMode = isSetToEditingMode
-            
-            
+                
+                
             }
             
             collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionFooter).forEach {
@@ -57,16 +59,16 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
             }
         }
     }
-
+    
     
     // MARK: - Inputs
     
-
+    
     
     // Mark: - Outputs
     
     
-
+    
     // MARK: - CleanUp
     
     func cleanUp() {
@@ -74,7 +76,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
         isSetToEditingMode = false
         isSetToRearrangeMode = false
     }
-
+    
     
     // MARK: - Initialization
     
@@ -96,10 +98,10 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
     // MARK: - Settings
     
     func setting() {
-    
+        
         collectionView?.dataSource = self
         collectionView?.delegate = self
-     }
+    }
     
     
     // MARK: - Load
@@ -112,7 +114,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
         
         
         guard dataExists() else {
-        
+            
             print ("There is no data")
             return
         }
@@ -132,7 +134,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
     }
     
     func addLongPressObserver() {
-        let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        lpgr.addTarget(self, action: #selector(handleLongPress(_:)))
         lpgr.minimumPressDuration = 0.5
         lpgr.delegate = self
         lpgr.delaysTouchesBegan = false
@@ -140,7 +142,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
     }
     
     // MARK: - Gestures handeling
-
+    
     func handleLongPress(_ gesture: UILongPressGestureRecognizer){
         
         switch(gesture.state) {
@@ -154,7 +156,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
                     
                     isSetToEditingMode = false
                     isSetToRearrangeMode = false
-                
+                    
                 } else {
                     isSetToRearrangeMode = true
                 }
@@ -168,14 +170,14 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
             guard let selectedIndexPath = self.collectionView?.indexPathForItem(at: gesture.location(in: self.collectionView)) else {
                 break
             }
-
+            
             collectionView?.beginInteractiveMovementForItem(at: selectedIndexPath)
             
             
         case UIGestureRecognizerState.changed:
             
             isSetToRearrangeMode ? collectionView?.updateInteractiveMovementTargetPosition(gesture.location(in: gesture.view!)) : ()
-        
+            
         case UIGestureRecognizerState.ended:
             
             
@@ -198,10 +200,10 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
         default:
             
             collectionView?.cancelInteractiveMovement()
-
+            
         }
     }
-
+    
     
     // MARK: - Collection elements
     
@@ -210,8 +212,8 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
         // #warning Incomplete implementation, return the number of sections
         return 1
     }
-
-
+    
+    
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
         
@@ -224,7 +226,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
             return 0
         }
     }
-
+    
     
     // MARK: - Cells (Represent Steps)
     
@@ -259,31 +261,34 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
     override func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath,
                                  to destinationIndexPath: IndexPath) {
         
-        //Update external data
-        data.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
+        if #available(iOS 9.0, *) {
+            
+            
+            if self.lpgr.state == .ended {
+                return
+            }
+            
+            //Update external data
+            data.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
+            
+            
+            //Update internal data
+            tasks = (data.currentGoal?.tasks)!
+            
+            //            print ("---")
+            //            tasks?.forEach {print ("\($0.order): \($0.title)")}
+            
+            
+        }
         
         
-        //Update internal data
-        tasks = (data.currentGoal?.tasks)!
         
-        print ("---")
-        tasks?.forEach {print ("\($0.order): \($0.title)")}
+        
+        
     }
     
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        
-        let cellHeight = (self.collectionView?.bounds.height)!*0.8
-        
-        let cell = StepCell()
-        let text = tasks?[indexPath.row].title
-        
-        let cellSize: CGSize = cell.getCellSize(fromText: text, withHeight: cellHeight)
-        
-        return cellSize
-    }
-
+    
     
     // MARK: - Footer (Represents Goal)
     
@@ -319,35 +324,35 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
     
     
     // MARK: - UICollectionViewDelegate
-
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
     
-    }
-    */
+    /*
+     // Uncomment this method to specify if the specified item should be highlighted during tracking
+     override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
+     return true
+     }
+     */
+    
+    /*
+     // Uncomment this method to specify if the specified item should be selected
+     override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+     return true
+     }
+     */
+    
+    /*
+     // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
+     override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
+     return false
+     }
+     
+     override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
+     return false
+     }
+     
+     override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
+     
+     }
+     */
     
     //MARK: - Memory Management
     
@@ -370,43 +375,53 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, UIColl
     
 }
 
-// MARK: - Layout
+// MARK: -
 
-extension UICollectionViewFlowLayout {
-
-    override open func invalidationContext(forInteractivelyMovingItems targetIndexPaths: [IndexPath],
-                                                                 withTargetPosition targetPosition: CGPoint,
-                                                                 previousIndexPaths: [IndexPath],
-                                                                 previousPosition: CGPoint) -> UICollectionViewLayoutInvalidationContext {
-        
-        let context = super.invalidationContext(forInteractivelyMovingItems: targetIndexPaths as [IndexPath],
-                                                                           withTargetPosition: targetPosition, previousIndexPaths: previousIndexPaths as [IndexPath],
-        
-                                                                           previousPosition: previousPosition)
-        
-        //collectionView?.moveItem(at: previousIndexPaths[0], to: targetIndexPaths[0])
+extension ProcessVC: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         
-        //self.delegate?.collectionView!(self.collectionView!, moveItemAt: previousIndexPaths[0], to: targetIndexPaths[0])
+        let cellHeight = (self.collectionView?.bounds.height)!*0.8
         
-        return context
+        let cell = StepCell()
+        let text = tasks?[indexPath.row].title
+        
+        let cellSize: CGSize = cell.getCellSize(fromText: text, withHeight: cellHeight)
+        
+        return cellSize
     }
 }
 
 
-//
-//
-//extension UICollectionViewFlowLayout {
-//    
-//    override open func shouldInvalidateLayout (forBoundsChange newBounds : CGRect) -> Bool {
-//        let oldBounds = self.collectionView?.bounds
-//        if newBounds.width != oldBounds?.width{
-//            return true
-//        }
-//        return false
-//    }
-//    
-//
-//}
 
+// MARK: - Layout
+
+extension UICollectionViewFlowLayout {
+    
+    @available(iOS 9.0, *)
+    open override func invalidationContext(forInteractivelyMovingItems targetIndexPaths: [IndexPath], withTargetPosition targetPosition: CGPoint, previousIndexPaths: [IndexPath], previousPosition: CGPoint) -> UICollectionViewLayoutInvalidationContext {
+        
+        let context = super.invalidationContext(forInteractivelyMovingItems: targetIndexPaths, withTargetPosition: targetPosition, previousIndexPaths: previousIndexPaths, previousPosition: previousPosition)
+        
+        //he same partition, different item
+        if previousIndexPaths.first!.item != targetIndexPaths.first!.item {
+            collectionView?.dataSource?.collectionView?(collectionView!, moveItemAt: previousIndexPaths.first!, to: targetIndexPaths.last!)
+        }
+        
+        return context
+    }
+    
+    open override func invalidationContextForEndingInteractiveMovementOfItems(toFinalIndexPaths indexPaths: [IndexPath], previousIndexPaths: [IndexPath], movementCancelled: Bool) -> UICollectionViewLayoutInvalidationContext {
+        return super.invalidationContextForEndingInteractiveMovementOfItems(toFinalIndexPaths: indexPaths, previousIndexPaths: previousIndexPaths, movementCancelled: movementCancelled)
+    }
+    
+    @available(iOS 9.0, *)
+    open override func layoutAttributesForInteractivelyMovingItem(at indexPath: IndexPath, withTargetPosition position: CGPoint) -> UICollectionViewLayoutAttributes {
+        let attr = super.layoutAttributesForInteractivelyMovingItem(at: indexPath, withTargetPosition: position)
+        attr.alpha = 0.75
+        return attr
+    }
+}
+
+//
 

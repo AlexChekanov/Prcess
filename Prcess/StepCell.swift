@@ -24,7 +24,6 @@ class StepCell: UICollectionViewCell {
     
     //Mark: - Variables
     
-    let guides = Guides()
     let constantElementsWidth: CGFloat = 65
     
     
@@ -53,14 +52,11 @@ class StepCell: UICollectionViewCell {
             
             if object != nil {
                 
-                let attributeString =  NSAttributedString(string: (object?.title)!, attributes: guides.textAttributes)
+                let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: (object?.title)!)
                 
-                
-//                let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: (object?.title)!)
-//                
-//                attributeString.addAttribute(NSBaselineOffsetAttributeName, value: 0, range: NSMakeRange(0, attributeString.length))
-//                attributeString.addAttribute(NSStrikethroughStyleAttributeName, value: 2, range: NSMakeRange(0, attributeString.length))
-//                attributeString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.lightGray.withAlphaComponent(0.8), range: NSMakeRange(0, attributeString.length))
+                attributeString.addAttribute(NSBaselineOffsetAttributeName, value: 0, range: NSMakeRange(0, attributeString.length))
+                attributeString.addAttribute(NSStrikethroughStyleAttributeName, value: 2, range: NSMakeRange(0, attributeString.length))
+                attributeString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.lightGray.withAlphaComponent(0.8), range: NSMakeRange(0, attributeString.length))
                 
                 title = attributeString
                 canBeMoved = (object?.canBeMoved)!
@@ -243,13 +239,13 @@ class StepCell: UICollectionViewCell {
     
     func configureXView() {
         
-        x = x.shaded as! UIButton
+        //x = x.shaded as! UIButton
     }
     
     
     func configureLockView() {
         
-        lock = lock.shaded as! UIButton
+        //lock = lock.shaded as! UIButton
     }
 
     
@@ -267,7 +263,7 @@ class StepCell: UICollectionViewCell {
         
             // We can have multiple words of the equal characters count but different width when the font is applied
             
-            let maxWordsCharacterCount = textToCalculate.maxWord.characters.count
+            let maxWordsCharacterCount = textToCalculate.longestWord.characters.count
             let allLongWords: [String] = textToCalculate.wordList.filter {$0.characters.count == maxWordsCharacterCount}
             
             var sizes: [CGFloat] = []
