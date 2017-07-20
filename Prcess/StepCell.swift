@@ -26,6 +26,11 @@ class StepCell: UICollectionViewCell {
     
     let constantElementsWidth: CGFloat = 65
     
+    //Style
+    let attentionColor = UIColor.orange.withAlphaComponent(0.8)
+    let denialColor = UIColor.red.withAlphaComponent(0.8)
+    let neutralAction = UIColor.white.withAlphaComponent(0.8)
+    
     
     //MARK: - Initialization
     
@@ -120,10 +125,10 @@ class StepCell: UICollectionViewCell {
         
         didSet {
             
-            if isTheFirstCell {arrow.alpha = 0} else {arrow.alpha = 1}
-            
+            isTheFirstCell ? (arrow.alpha = 0) : (arrow.alpha = 1)
         }
     }
+    
     
     var canBeMoved: Bool = true {
         
@@ -217,7 +222,7 @@ class StepCell: UICollectionViewCell {
     
     func configureCellStyle(){
         
-        self.backgroundColor = .clear //.blue // .clear
+        self.backgroundColor = .clear
         self.clipsToBounds = false
     }
     
@@ -239,14 +244,15 @@ class StepCell: UICollectionViewCell {
     
     func configureXView() {
         
-        //x = x.shaded as! UIButton
+        x.shadowStyle = Shadow.soft
+        x.tintColor = UIColor.white.withAlphaComponent(0.8)
     }
     
     
     func configureLockView() {
         
-        //lock = lock.shaded as! UIButton
-        lock.tintColor = .red
+        lock.shadowStyle = Shadow.soft
+        lock.tintColor = UIColor.red.withAlphaComponent(0.8)
     }
 
     

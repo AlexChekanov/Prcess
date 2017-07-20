@@ -17,55 +17,24 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
 
     let lpgr = UILongPressGestureRecognizer()
 
-    // Cell move helper
-    var selectedCellCenter = CGPoint.zero
-    var gestureFirstPoint = CGPoint.zero
     
-    var dX: CGFloat = 0.0
-    var dY: CGFloat = 0.0
-
-    //
+    // States
+    
     var isSetToEditingMode: Bool = false {
         
         didSet { setCollectionViewToEditingMode() }
     }
     
-    func setCollectionViewToEditingMode () {
-        
-        collectionView?.visibleCells.forEach {
-            let cell = $0 as! StepCell
-            cell.isSetToEditingMode = isSetToEditingMode
-        }
-        
-        collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionFooter).forEach {
-            let footer = $0 as! GoalFooter
-            footer.isSetToEditingMode = isSetToEditingMode
-        }
-        
-        collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionHeader).forEach {
-            let header = $0 as! GoalHeader
-            header.isSetToEditingMode = isSetToEditingMode
-        }
-    }
-    
     var isSetToRearrangeMode: Bool = false {
         
-        didSet {
-            
-            collectionView?.visibleCells.forEach {
-                
-                let cell = $0 as! StepCell
-                cell.isSetToRearrangeMode = isSetToRearrangeMode
-            }
-            
-            collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionFooter).forEach {
-                
-                let footer = $0 as! GoalFooter
-                footer.isSetToRearrangeMode = isSetToRearrangeMode
-            }
-        }
+        didSet { setCollectionViewToRearrangeMode() }
     }
     
+    func cleanUp() {
+        
+        isSetToEditingMode = false
+        isSetToRearrangeMode = false
+    }
     
     // MARK: - Inputs
     
@@ -77,11 +46,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     
     // MARK: - CleanUp
     
-    func cleanUp() {
-        
-        isSetToEditingMode = false
-        isSetToRearrangeMode = false
-    }
+    
     
     
     // MARK: - Initialization
@@ -109,25 +74,28 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         collectionView?.delegate = self
     }
     
+    func getData() {
+        
+        goal = data.currentGoal!
+        tasks = data.currentGoal?.tasks
+    }
+    
     
     // MARK: - Load
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.setting()
-        self.cleanUp()
-        
-        
         guard dataExists() else {
             
             print ("There is no data")
             return
         }
+
+        self.setting()
+        self.cleanUp()
         
-        goal = data.currentGoal!
-        
-        tasks = data.currentGoal?.tasks
+        self.getData()
         
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -135,7 +103,6 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         // Register cell classes
         //self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         
-        // Do any additional setup after loading the view.
         addLongPressObserver()
     }
     
@@ -148,6 +115,12 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     }
     
     // MARK: - Gestures handeling
+    
+    var selectedCellCenter = CGPoint.zero
+    var gestureFirstPoint = CGPoint.zero
+    
+    var dX: CGFloat = 0.0
+    var dY: CGFloat = 0.0
     
     func handleLongPress(_ gesture: UILongPressGestureRecognizer){
         
@@ -245,29 +218,10 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     
     // MARK: - Cells (Represent Steps)
     
-    override func collectionView(_ collectionView: UICollectionView,
-                                 cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         return collectionView.dequeueReusableCell(withReuseIdentifier: reuseCellIdentifier, for: indexPath) as! StepCell
     }
     
-    
-    
-    // MARK: - Footer (Represents Goal)
-    
-    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        
-        return collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionFooter, withReuseIdentifier: reuseFooterIdentifier, for: indexPath) as! GoalFooter
-    }
-    
-    
-    override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
-        guard let view = view as? GoalFooter else { return }
-        
-        view.object = goal
-        
-        isSetToEditingMode ? (view.isSetToEditingMode = true) : (view.isSetToEditingMode = false)
-        isSetToRearrangeMode ? (view.isSetToRearrangeMode = true) : (view.isSetToRearrangeMode = false)
-    }
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell,
                                  forItemAt indexPath: IndexPath) {
@@ -279,23 +233,26 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         isSetToEditingMode ? (cell.isSetToEditingMode = true) : (cell.isSetToEditingMode = false)
         isSetToRearrangeMode ? (cell.isSetToRearrangeMode = true) : (cell.isSetToRearrangeMode = false)
         
-        if indexPath.row == 0 {cell.isTheFirstCell = true} else {cell.isTheFirstCell = false}
+        if indexPath.row == 0 { cell.isTheFirstCell = true } else { cell.isTheFirstCell = false }
     }
     
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        
-        guard ((self.collectionView?.frame.height) != nil) else { return CGSize.zero }
-        
-        let footerHeight = self.collectionView?.bounds.height
-        
-        let footer = GoalFooter()
-        
-        let footerSize: CGSize = footer.getFooterSize(fromText: goal.title, withHeight: footerHeight!)
-        
-        return footerSize
-    }
+    // MARK: - Footer (Represents Goal)
     
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        
+        return collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionFooter, withReuseIdentifier: reuseFooterIdentifier, for: indexPath) as! GoalFooter
+    }
+
+    
+    override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
+        guard let view = view as? GoalFooter else { return }
+        
+        view.object = goal
+        
+        isSetToEditingMode ? (view.isSetToEditingMode = true) : (view.isSetToEditingMode = false)
+        isSetToRearrangeMode ? (view.isSetToRearrangeMode = true) : (view.isSetToRearrangeMode = false)
+    }
     
     
     // MARK: - UICollectionViewDelegate
@@ -346,11 +303,10 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
      // Pass the selected object to the new view controller.
      }
      */
-    
-    
 }
 
-// MARK: -
+// MARK: - Layout
+
 
 extension ProcessVC: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -365,8 +321,18 @@ extension ProcessVC: UICollectionViewDelegateFlowLayout {
         
         return cellSize
     }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+        
+        guard ((self.collectionView?.frame.height) != nil) else { return CGSize.zero }
+        
+        let footerHeight = self.collectionView?.bounds.height
+        let footer = GoalFooter()
+        let footerSize: CGSize = footer.getFooterSize(fromText: goal.title, withHeight: footerHeight!)
+        
+        return footerSize
+    }
 }
-
 
 
 // MARK: - Reorder
@@ -433,3 +399,45 @@ extension UICollectionViewFlowLayout {
         return attributes
     }
 }
+
+
+// Mark: - Service methods
+
+extension ProcessVC {
+    
+    func setCollectionViewToEditingMode () {
+        
+        collectionView?.visibleCells.forEach {
+            let cell = $0 as! StepCell
+            cell.isSetToEditingMode = isSetToEditingMode
+        }
+        
+        collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionFooter).forEach {
+            let footer = $0 as! GoalFooter
+            footer.isSetToEditingMode = isSetToEditingMode
+        }
+        
+        collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionHeader).forEach {
+            let header = $0 as! GoalHeader
+            header.isSetToEditingMode = isSetToEditingMode
+        }
+    }
+    
+    func setCollectionViewToRearrangeMode() {
+        
+        collectionView?.visibleCells.forEach {
+            
+            let cell = $0 as! StepCell
+            cell.isSetToRearrangeMode = isSetToRearrangeMode
+        }
+        
+        collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionFooter).forEach {
+            
+            let footer = $0 as! GoalFooter
+            footer.isSetToRearrangeMode = isSetToRearrangeMode
+        }
+        
+    }
+    
+}
+
