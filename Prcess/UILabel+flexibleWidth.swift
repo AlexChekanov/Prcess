@@ -14,7 +14,7 @@ extension UILabel {
         text: String?,
         font: UIFont?,
         
-        maximumNumberOfLines: Int?,
+        maximumHeight: CGFloat,
         
         lineBreakMode: NSLineBreakMode?,
         
@@ -31,9 +31,7 @@ extension UILabel {
         
         let theFont: UIFont = font ?? UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)
         
-        let lineSpacingCoefficient: CGFloat = 1.1
-        
-        let targetHeight = CGFloat(maximumNumberOfLines ?? 1)*(theFont.lineHeight)*lineSpacingCoefficient
+        let targetHeight = maximumHeight
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakMode = lineBreakMode ?? .byWordWrapping
@@ -56,7 +54,7 @@ extension UILabel {
             context: nil).size
         
         let maximalLabelWidth = boundingSize.width
-        let minimalHeight = boundingSize.height
+        let minimalLabelHeight = boundingSize.height
         
         let frame_:CGRect = {
             
@@ -64,9 +62,9 @@ extension UILabel {
             
             if !text.isNilOrEmpty {
                 
-                if  (maximalLabelWidth < acceptableWidthForTextOfOneLine) || (text!.wordList.count == 1) {
+                if  (maximalLabelWidth < acceptableWidthForTextOfOneLine) || (text!.wordList.count == 1) || targetHeight < minimalLabelHeight {
                     
-                    frameToReturn = CGRect(origin: CGPoint.zero, size: CGSize(width: maximalLabelWidth+constantElementsWidth, height: minimalHeight))
+                    frameToReturn = CGRect(origin: CGPoint.zero, size: CGSize(width: maximalLabelWidth+constantElementsWidth, height: minimalLabelHeight))
                 } else {
                     
                     // Minimal width, calculated based on the longest word
@@ -160,7 +158,7 @@ extension UILabel {
         }
         self.backgroundColor = backgroundColor ?? UIColor.clear
         self.adjustsFontSizeToFitWidth = false
-        self.numberOfLines = maximumNumberOfLines ?? 1
+        self.numberOfLines = 0
         self.lineBreakMode = lineBreakMode ?? .byWordWrapping
         self.textAlignment = textAlignment ?? .natural
         self.isUserInteractionEnabled = userInteractionEnabled ?? false
