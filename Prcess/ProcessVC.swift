@@ -13,32 +13,40 @@ private let reuseFooterIdentifier = "Goal"
 
 class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     
-    let lpgr = UILongPressGestureRecognizer()
-    
     // MARK: - Variables
+
+    let lpgr = UILongPressGestureRecognizer()
+
+    // Cell move helper
+    var selectedCellCenter = CGPoint.zero
+    var gestureFirstPoint = CGPoint.zero
     
+    var dX: CGFloat = 0.0
+    var dY: CGFloat = 0.0
+
+    //
     var isSetToEditingMode: Bool = false {
         
-        didSet {
-            
-            collectionView?.visibleCells.forEach {
-                
-                let cell = $0 as! StepCell
-                
-                cell.isSetToEditingMode = isSetToEditingMode
-                
-                
-            }
-            
-            collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionFooter).forEach {
-                
-                let footer = $0 as! GoalFooter
-                
-                footer.isSetToEditingMode = isSetToEditingMode
-            }
-        }
+        didSet { setCollectionViewToEditingMode() }
     }
     
+    func setCollectionViewToEditingMode () {
+        
+        collectionView?.visibleCells.forEach {
+            let cell = $0 as! StepCell
+            cell.isSetToEditingMode = isSetToEditingMode
+        }
+        
+        collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionFooter).forEach {
+            let footer = $0 as! GoalFooter
+            footer.isSetToEditingMode = isSetToEditingMode
+        }
+        
+        collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionHeader).forEach {
+            let header = $0 as! GoalHeader
+            header.isSetToEditingMode = isSetToEditingMode
+        }
+    }
     
     var isSetToRearrangeMode: Bool = false {
         
@@ -47,14 +55,12 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
             collectionView?.visibleCells.forEach {
                 
                 let cell = $0 as! StepCell
-                
                 cell.isSetToRearrangeMode = isSetToRearrangeMode
             }
             
             collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionFooter).forEach {
                 
                 let footer = $0 as! GoalFooter
-                
                 footer.isSetToRearrangeMode = isSetToRearrangeMode
             }
         }
@@ -167,19 +173,28 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
             
             guard isSetToRearrangeMode else { break }
             
-            guard let selectedIndexPath = self.collectionView?.indexPathForItem(at: gesture.location(in: self.collectionView)) else {
-                break
-            }
+            guard let selectedIndexPath = self.collectionView?.indexPathForItem(at: gesture.location(in: self.collectionView)) else { break }
+            
+            selectedCellCenter = (collectionView?.layoutAttributesForItem(at: selectedIndexPath)?.center)!
+            gestureFirstPoint = gesture.location(in: self.collectionView)
+            
+            dX = selectedCellCenter.x - gestureFirstPoint.x
+            dY = selectedCellCenter.y - gestureFirstPoint.y
             
             collectionView?.beginInteractiveMovementForItem(at: selectedIndexPath)
             
             
         case UIGestureRecognizerState.changed:
             
-            isSetToRearrangeMode ? collectionView?.updateInteractiveMovementTargetPosition(gesture.location(in: gesture.view!)) : ()
+            guard isSetToRearrangeMode else { break }
+            
+            let newPoint = CGPoint(x: (gesture.location(in: gesture.view!).x + dX), y: (gesture.location(in: gesture.view!).y + dY))
+            
+            collectionView?.updateInteractiveMovementTargetPosition(newPoint)
+            
+            
             
         case UIGestureRecognizerState.ended:
-            
             
             collectionView?.endInteractiveMovement()
             
@@ -236,59 +251,6 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     }
     
     
-    override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell,
-                                 forItemAt indexPath: IndexPath) {
-        
-        guard let cell = cell as? StepCell else { return }
-        
-        cell.object = tasks?[indexPath.row]
-        
-        isSetToEditingMode ? (cell.isSetToEditingMode = true) : (cell.isSetToEditingMode = false)
-        isSetToRearrangeMode ? (cell.isSetToRearrangeMode = true) : (cell.isSetToRearrangeMode = false)
-        
-        if indexPath.row == 0 {cell.isTheFirstCell = true} else {cell.isTheFirstCell = false}
-    }
-    
-    
-    override func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
-        
-        guard let cell = (collectionView.cellForItem(at: indexPath) as? StepCell) else  { return false }
-        
-        return cell.canBeMoved
-    }
-    
-    
-    override func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath,
-                                 to destinationIndexPath: IndexPath) {
-        
-        if #available(iOS 9.0, *) {
-            
-            
-            if self.lpgr.state == .ended {
-                return
-            }
-            
-            //Update external data
-            data.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
-            
-            
-            //Update internal data
-            tasks = (data.currentGoal?.tasks)!
-            
-            //            print ("---")
-            //            tasks?.forEach {print ("\($0.order): \($0.title)")}
-            
-            
-        }
-        
-        
-        
-        
-        
-    }
-    
-    
-    
     
     // MARK: - Footer (Represents Goal)
     
@@ -305,6 +267,19 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         
         isSetToEditingMode ? (view.isSetToEditingMode = true) : (view.isSetToEditingMode = false)
         isSetToRearrangeMode ? (view.isSetToRearrangeMode = true) : (view.isSetToRearrangeMode = false)
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell,
+                                 forItemAt indexPath: IndexPath) {
+        
+        guard let cell = cell as? StepCell else { return }
+        
+        cell.object = tasks?[indexPath.row]
+        
+        isSetToEditingMode ? (cell.isSetToEditingMode = true) : (cell.isSetToEditingMode = false)
+        isSetToRearrangeMode ? (cell.isSetToRearrangeMode = true) : (cell.isSetToRearrangeMode = false)
+        
+        if indexPath.row == 0 {cell.isTheFirstCell = true} else {cell.isTheFirstCell = false}
     }
     
     
@@ -394,7 +369,40 @@ extension ProcessVC: UICollectionViewDelegateFlowLayout {
 
 
 
-// MARK: - Layout
+// MARK: - Reorder
+
+extension ProcessVC {
+    
+    // Chek if the cell is movable
+    
+    override func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
+        
+        guard let cell = (collectionView.cellForItem(at: indexPath) as? StepCell) else  { return false }
+        
+        return cell.canBeMoved
+    }
+    
+    
+    // Perform move action
+    
+    override func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath,
+                                 to destinationIndexPath: IndexPath) {
+        
+        if #available(iOS 9.0, *) {
+            
+            if self.lpgr.state == .ended {
+                return
+            }
+            
+            //Update external data
+            data.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
+            
+            
+            //Update internal data
+            tasks = (data.currentGoal?.tasks)!
+        }
+    }
+}
 
 extension UICollectionViewFlowLayout {
     
@@ -403,7 +411,6 @@ extension UICollectionViewFlowLayout {
         
         let context = super.invalidationContext(forInteractivelyMovingItems: targetIndexPaths, withTargetPosition: targetPosition, previousIndexPaths: previousIndexPaths, previousPosition: previousPosition)
         
-        //he same partition, different item
         if previousIndexPaths.first!.item != targetIndexPaths.first!.item {
             collectionView?.dataSource?.collectionView?(collectionView!, moveItemAt: previousIndexPaths.first!, to: targetIndexPaths.last!)
         }
@@ -417,11 +424,12 @@ extension UICollectionViewFlowLayout {
     
     @available(iOS 9.0, *)
     open override func layoutAttributesForInteractivelyMovingItem(at indexPath: IndexPath, withTargetPosition position: CGPoint) -> UICollectionViewLayoutAttributes {
-        let attr = super.layoutAttributesForInteractivelyMovingItem(at: indexPath, withTargetPosition: position)
-        attr.alpha = 0.75
-        return attr
+        let attributes = super.layoutAttributesForInteractivelyMovingItem(at: indexPath, withTargetPosition: position)
+        
+        attributes.alpha = 0.8
+        
+        //attributes.transform = CGAffineTransform.init(scaleX: 1.1, y: 1.1)
+        
+        return attributes
     }
 }
-
-//
-

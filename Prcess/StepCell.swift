@@ -246,6 +246,7 @@ class StepCell: UICollectionViewCell {
     func configureLockView() {
         
         //lock = lock.shaded as! UIButton
+        lock.tintColor = .red
     }
 
     

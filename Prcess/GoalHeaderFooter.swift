@@ -127,7 +127,6 @@ class GoalFooter: UICollectionReusableView {
     }
 
     
-    
     //MARK: - Overrides
     
     override func awakeFromNib() {
@@ -232,4 +231,22 @@ class GoalFooter: UICollectionReusableView {
         print ("Insert task before the completiom")
     }
     
+}
+
+
+//MARK: - Header
+
+class GoalHeader: UICollectionReusableView {
+    
+    //MARK: - Controls
+    
+    var isSetToEditingMode = false {
+        didSet {
+        }
+    }
+    
+    var isSetToRearrangeMode = false {
+        didSet {
+        }
+    }
 }
