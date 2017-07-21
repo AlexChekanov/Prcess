@@ -24,7 +24,7 @@ class GoalFooter: UICollectionReusableView {
     //Mark: - Variables
     
     let constantElementsWidth: CGFloat = 65
-
+    
     
     
     //MARK: - Initialization
@@ -80,10 +80,6 @@ class GoalFooter: UICollectionReusableView {
     }
     
     
-    var xShadowColor: UIColor = .black
-    var xShadowOffset: CGSize = CGSize(width: 2.0, height: 6.0)
-    var xShadowRadius: CGFloat = 8
-    var xShadowOpacity: Float = 0.8
     var xIsHidden: Bool = false {
         didSet {
             xIsHidden ? x.fadeOut(duration: 0.2) : x.fadeIn(duration: 0.2)
@@ -125,7 +121,7 @@ class GoalFooter: UICollectionReusableView {
             }
         }
     }
-
+    
     
     //MARK: - Overrides
     
@@ -174,10 +170,7 @@ class GoalFooter: UICollectionReusableView {
     
     func configureXView() {
         
-        x.layer.shadowColor = xShadowColor.cgColor
-        x.layer.shadowOffset = xShadowOffset
-        x.layer.shadowRadius = xShadowRadius
-        x.layer.shadowOpacity = xShadowOpacity
+        x.shadowStyle = Shadow.soft
     }
     
     
@@ -196,7 +189,7 @@ class GoalFooter: UICollectionReusableView {
             let textToCalculate = text!
             
             // We can have multiple words of the equal characters count but different width when the font is applied
-
+            
             let maxWordsCharacterCount = textToCalculate.longestWord.characters.count
             let allLongWords: [String] = textToCalculate.wordList.filter {$0.characters.count == maxWordsCharacterCount}
             
@@ -209,7 +202,7 @@ class GoalFooter: UICollectionReusableView {
             allLongWords.forEach {sizes.append($0.size(attributes: textAttributes).width)}
             
             footerSize = CGSize(width: (sizes.max()! + 1.5*constantElementsWidth), height: height)
-        
+            
         } else {
             
             footerSize = CGSize(width: 1.5*constantElementsWidth, height: height)
