@@ -42,7 +42,7 @@ class StepCell: UICollectionViewCell {
         canBeMoved = false
         canBeDeleted = false
     }
-
+    
     
     //Mark: - Initial Calculations
     
@@ -75,6 +75,7 @@ class StepCell: UICollectionViewCell {
             theTitle.attributedText = title
         }
     }
+    
     let titleFont: UIFont = UIFont.systemFont(ofSize: 18, weight: UIFontWeightBlack)
     
     var titleSelectedTextColor: UIColor = .white
@@ -141,7 +142,7 @@ class StepCell: UICollectionViewCell {
     var canBeDeleted: Bool = true {
         
         didSet {
-        
+            
         }
     }
     
@@ -154,7 +155,7 @@ class StepCell: UICollectionViewCell {
             !isTheFirstCell ? (arrowIsHidden = isSetToEditingMode) : (arrowIsHidden = true)
             
             titleIsSelected = false
-                        
+            
             if canBeDeleted {
                 
                 lockIsHidden = true
@@ -165,7 +166,7 @@ class StepCell: UICollectionViewCell {
                 lockIsHidden = !isSetToEditingMode
                 xIsHidden = true
             }
-
+            
             plusIsHidden = !isSetToEditingMode
             isSetToEditingMode ? self.main.shakeOn() : self.main.shakeOff()
         }
@@ -207,7 +208,7 @@ class StepCell: UICollectionViewCell {
     
     
     override var isSelected: Bool {
-       
+        
         didSet {
             
             isSetToEditingMode ? () : (
@@ -216,7 +217,7 @@ class StepCell: UICollectionViewCell {
             //ToDo: - send delegate!
         }
     }
-
+    
     
     //MARK: - Cell styles
     
@@ -240,7 +241,7 @@ class StepCell: UICollectionViewCell {
         
         arrow.text = "❭"
     }
-
+    
     
     func configureXView() {
         
@@ -254,7 +255,7 @@ class StepCell: UICollectionViewCell {
         lock.shadowStyle = Shadow.soft
         lock.tintColor = UIColor.red.withAlphaComponent(0.8)
     }
-
+    
     
     func configurePlusView() {
         
@@ -264,28 +265,13 @@ class StepCell: UICollectionViewCell {
     
     func getCellSize (fromText text: String?, withHeight height: CGFloat) -> CGSize {
         
-        var cellSize = CGSize()
+        var cellSize = CGSize(width: constantElementsWidth, height: height)
         
-        if let textToCalculate = text {
-        
-            // We can have multiple words of the equal characters count but different width when the font is applied
+        if text != nil {
             
-            let maxWordsCharacterCount = textToCalculate.longestWord.characters.count
-            let allLongWords: [String] = textToCalculate.wordList.filter {$0.characters.count == maxWordsCharacterCount}
+            let labelFromTheTextWithOptimalWidth = UILabel(text: text, font: titleFont, maximumHeight: height, lineBreakMode: NSLineBreakMode.byWordWrapping, constantElementsWidth: 0.0, acceptableWidthForTextOfOneLine: 120, textColor: nil, backgroundColor: nil, textAlignment: NSTextAlignment.natural, userInteractionEnabled: nil)
             
-            var sizes: [CGFloat] = []
-            
-            let textAttributes = [
-                NSFontAttributeName: titleFont
-            ]
-            
-            allLongWords.forEach {sizes.append($0.size(attributes: textAttributes).width)}
-            
-            cellSize = CGSize(width: (sizes.max()! + constantElementsWidth), height: height)
-            
-        } else {
-            
-            cellSize = CGSize(width: constantElementsWidth, height: height)
+            cellSize.width += labelFromTheTextWithOptimalWidth.bounds.width
         }
         
         return cellSize

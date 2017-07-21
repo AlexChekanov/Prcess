@@ -23,7 +23,7 @@ class GoalFooter: UICollectionReusableView {
     
     //Mark: - Variables
     
-    let constantElementsWidth: CGFloat = 65
+    let constantElementsWidth: CGFloat = 97
     
     
     
@@ -182,30 +182,13 @@ class GoalFooter: UICollectionReusableView {
     
     func getFooterSize (fromText text: String?, withHeight height: CGFloat) -> CGSize {
         
-        var footerSize = CGSize()
+        var footerSize = CGSize(width: constantElementsWidth, height: height)
         
         if text != nil {
             
-            let textToCalculate = text!
+            let labelFromTheTextWithOptimalWidth = UILabel(text: text, font: titleFont, maximumHeight: height, lineBreakMode: NSLineBreakMode.byWordWrapping, constantElementsWidth: 0.0, acceptableWidthForTextOfOneLine: 120, textColor: nil, backgroundColor: nil, textAlignment: NSTextAlignment.natural, userInteractionEnabled: nil)
             
-            // We can have multiple words of the equal characters count but different width when the font is applied
-            
-            let maxWordsCharacterCount = textToCalculate.longestWord.characters.count
-            let allLongWords: [String] = textToCalculate.wordList.filter {$0.characters.count == maxWordsCharacterCount}
-            
-            var sizes: [CGFloat] = []
-            
-            let textAttributes = [
-                NSFontAttributeName: titleFont
-            ]
-            
-            allLongWords.forEach {sizes.append($0.size(attributes: textAttributes).width)}
-            
-            footerSize = CGSize(width: (sizes.max()! + 1.5*constantElementsWidth), height: height)
-            
-        } else {
-            
-            footerSize = CGSize(width: 1.5*constantElementsWidth, height: height)
+            footerSize.width += labelFromTheTextWithOptimalWidth.bounds.width
         }
         
         return footerSize

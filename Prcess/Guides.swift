@@ -1,5 +1,5 @@
 //
-//  Guides.swift
+//  GuidesShadows.swift
 //  Guidelines
 //
 //  Created by Alexey Chekanov on 7/11/17.
@@ -9,6 +9,9 @@
 import Foundation
 import UIKit
 
+
+// Mark: Shadows
+
 struct Shadow {
     
     let shadowColor: UIColor
@@ -17,20 +20,6 @@ struct Shadow {
     let shadowOpacity: Float
     let masksToBound: Bool?
     
-    enum ShadowStyle {
-        case soft
-        case hard
-        
-        func value () -> Shadow {
-            switch self {
-            case .soft:
-                return Shadow (shadowColor: #colorLiteral(red: 0.925490200519562, green: 0.235294118523598, blue: 0.10196078568697, alpha: 1.0), shadowOffset: CGSize(width: 4.0, height: 2.0), shadowRadius: 8, shadowOpacity: 0.8, masksToBound: false)
-            case .hard:
-                return Shadow (shadowColor: #colorLiteral(red: 0.925490200519562, green: 0.235294118523598, blue: 0.10196078568697, alpha: 1.0), shadowOffset: CGSize(width: 4.0, height: 2.0), shadowRadius: 8, shadowOpacity: 0.8, masksToBound: false)
-            }
-            
-        }
-    }
 }
 
 extension Shadow {
@@ -41,8 +30,8 @@ extension Shadow {
     static var soft: Shadow {
         return Shadow(shadowColor: .black, shadowOffset: CGSize(width: 2.0, height: 6.0), shadowRadius: 8, shadowOpacity: 0.8, masksToBound: false)
     }
-
 }
+
 
 
 extension UIView {
