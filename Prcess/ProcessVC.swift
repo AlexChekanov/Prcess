@@ -14,9 +14,9 @@ private let reuseFooterIdentifier = "Goal"
 class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     
     // MARK: - Variables
-
+    
     let lpgr = UILongPressGestureRecognizer()
-
+    
     
     // States
     
@@ -91,7 +91,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
             print ("There is no data")
             return
         }
-
+        
         self.setting()
         self.cleanUp()
         
@@ -243,7 +243,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         
         return collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionFooter, withReuseIdentifier: reuseFooterIdentifier, for: indexPath) as! GoalFooter
     }
-
+    
     
     override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
         guard let view = view as? GoalFooter else { return }
@@ -400,6 +400,30 @@ extension UICollectionViewFlowLayout {
     }
 }
 
+// MARK: - Rotation
+
+extension ProcessVC {
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: nil, completion: {
+            _ in
+            
+            self.resignFirstResponder()
+        })
+    }
+}
+
+extension UICollectionViewFlowLayout {
+    override open func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        let oldBounds = collectionView?.bounds
+        if newBounds.width != oldBounds?.width {
+            
+            return true
+        }
+        return false
+    }
+}
 
 // Mark: - Service methods
 

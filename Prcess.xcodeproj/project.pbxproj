@@ -16,6 +16,10 @@
 		3B1032521F1FC71D008FB740 /* String+wordList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B10324F1F1FC71D008FB740 /* String+wordList.swift */; };
 		3B1037391F113E48006960D4 /* GoalHeaderFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B1037381F113E48006960D4 /* GoalHeaderFooter.swift */; };
 		3B5400301F2131B2008BACAF /* Guides.Shadows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B54002F1F2131B2008BACAF /* Guides.Shadows.swift */; };
+		3BCFEFC51F2265AC006B1C92 /* Guides.TextStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BCFEFC41F2265AC006B1C92 /* Guides.TextStyles.swift */; };
+		3BCFEFC81F22B499006B1C92 /* Bugs in Resources */ = {isa = PBXBuildFile; fileRef = 3BCFEFC71F22B499006B1C92 /* Bugs */; };
+		3BCFEFCA1F23A98F006B1C92 /* Guides.TextStyles.Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BCFEFC91F23A98F006B1C92 /* Guides.TextStyles.Tools.swift */; };
+		3BCFEFCC1F23A9A5006B1C92 /* Guides.Shadows.Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BCFEFCB1F23A9A5006B1C92 /* Guides.Shadows.Tools.swift */; };
 		3BD07AF51F0A772D00B5A642 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD07AF41F0A772D00B5A642 /* AppDelegate.swift */; };
 		3BD07AFA1F0A772D00B5A642 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3BD07AF81F0A772D00B5A642 /* Main.storyboard */; };
 		3BD07AFC1F0A772D00B5A642 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3BD07AFB1F0A772D00B5A642 /* Assets.xcassets */; };
@@ -35,6 +39,10 @@
 		3B10324F1F1FC71D008FB740 /* String+wordList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+wordList.swift"; sourceTree = "<group>"; };
 		3B1037381F113E48006960D4 /* GoalHeaderFooter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoalHeaderFooter.swift; sourceTree = "<group>"; };
 		3B54002F1F2131B2008BACAF /* Guides.Shadows.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Guides.Shadows.swift; sourceTree = "<group>"; };
+		3BCFEFC41F2265AC006B1C92 /* Guides.TextStyles.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Guides.TextStyles.swift; sourceTree = "<group>"; };
+		3BCFEFC71F22B499006B1C92 /* Bugs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Bugs; sourceTree = "<group>"; };
+		3BCFEFC91F23A98F006B1C92 /* Guides.TextStyles.Tools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Guides.TextStyles.Tools.swift; sourceTree = "<group>"; };
+		3BCFEFCB1F23A9A5006B1C92 /* Guides.Shadows.Tools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Guides.Shadows.Tools.swift; sourceTree = "<group>"; };
 		3BD07AF11F0A772D00B5A642 /* Prcess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Prcess.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3BD07AF41F0A772D00B5A642 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3BD07AF91F0A772D00B5A642 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -57,6 +65,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3BCFEFC61F2265B6006B1C92 /* Guides */ = {
+			isa = PBXGroup;
+			children = (
+				3B54002F1F2131B2008BACAF /* Guides.Shadows.swift */,
+				3BCFEFC41F2265AC006B1C92 /* Guides.TextStyles.swift */,
+				3BCFEFCD1F23AA95006B1C92 /* Tools */,
+			);
+			name = Guides;
+			sourceTree = "<group>";
+		};
+		3BCFEFCD1F23AA95006B1C92 /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				3BCFEFC91F23A98F006B1C92 /* Guides.TextStyles.Tools.swift */,
+				3BCFEFCB1F23A9A5006B1C92 /* Guides.Shadows.Tools.swift */,
+			);
+			name = Tools;
+			sourceTree = "<group>";
+		};
 		3BD07AE81F0A772D00B5A642 = {
 			isa = PBXGroup;
 			children = (
@@ -76,13 +103,14 @@
 		3BD07AF31F0A772D00B5A642 /* Prcess */ = {
 			isa = PBXGroup;
 			children = (
+				3BCFEFC71F22B499006B1C92 /* Bugs */,
 				3BD07AF41F0A772D00B5A642 /* AppDelegate.swift */,
 				3BD07B081F0A786500B5A642 /* Model.swift */,
 				3BD07B061F0A77E300B5A642 /* ProcessVC.swift */,
 				3BD07B0A1F0A78A600B5A642 /* StepCell.swift */,
 				3B1037381F113E48006960D4 /* GoalHeaderFooter.swift */,
+				3BCFEFC61F2265B6006B1C92 /* Guides */,
 				3BD07AF81F0A772D00B5A642 /* Main.storyboard */,
-				3B54002F1F2131B2008BACAF /* Guides.Shadows.swift */,
 				3BD07AFB1F0A772D00B5A642 /* Assets.xcassets */,
 				3B1032451F1FC6F6008FB740 /* UIView+fadeInOut.swift */,
 				3B1032471F1FC6FB008FB740 /* UIViewl+shake.swift */,
@@ -158,6 +186,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3BD07AFF1F0A772D00B5A642 /* LaunchScreen.storyboard in Resources */,
+				3BCFEFC81F22B499006B1C92 /* Bugs in Resources */,
 				3BD07AFC1F0A772D00B5A642 /* Assets.xcassets in Resources */,
 				3BD07AFA1F0A772D00B5A642 /* Main.storyboard in Resources */,
 			);
@@ -174,10 +203,13 @@
 				3B1032461F1FC6F6008FB740 /* UIView+fadeInOut.swift in Sources */,
 				3B1032511F1FC71D008FB740 /* String+maxElement.swift in Sources */,
 				3BD07B091F0A786500B5A642 /* Model.swift in Sources */,
+				3BCFEFCA1F23A98F006B1C92 /* Guides.TextStyles.Tools.swift in Sources */,
 				3BD07B0B1F0A78A600B5A642 /* StepCell.swift in Sources */,
 				3BD07B071F0A77E300B5A642 /* ProcessVC.swift in Sources */,
 				3B10324A1F1FC709008FB740 /* UILabel+flexibleWidth.swift in Sources */,
 				3BD07AF51F0A772D00B5A642 /* AppDelegate.swift in Sources */,
+				3BCFEFC51F2265AC006B1C92 /* Guides.TextStyles.swift in Sources */,
+				3BCFEFCC1F23A9A5006B1C92 /* Guides.Shadows.Tools.swift in Sources */,
 				3B1032501F1FC71D008FB740 /* String+isNilOrEmpty.swift in Sources */,
 				3B5400301F2131B2008BACAF /* Guides.Shadows.swift in Sources */,
 				3B10324C1F1FC714008FB740 /* CGFloat+degreeToRad.swift in Sources */,

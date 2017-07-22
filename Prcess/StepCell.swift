@@ -57,11 +57,8 @@ class StepCell: UICollectionViewCell {
             
             if object != nil {
                 
-                let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: (object?.title)!)
-                
-                attributeString.addAttribute(NSBaselineOffsetAttributeName, value: 0, range: NSMakeRange(0, attributeString.length))
-                attributeString.addAttribute(NSStrikethroughStyleAttributeName, value: 2, range: NSMakeRange(0, attributeString.length))
-                attributeString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.lightGray.withAlphaComponent(0.8), range: NSMakeRange(0, attributeString.length))
+                let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: (object?.title ?? "")!)
+                attributeString.applyAttributes(ofStyle: TextStyle.stamp)
                 
                 title = attributeString
                 canBeMoved = (object?.canBeMoved)!
@@ -76,7 +73,7 @@ class StepCell: UICollectionViewCell {
         }
     }
     
-    let titleFont: UIFont = UIFont.systemFont(ofSize: 18, weight: UIFontWeightBlack)
+    let titleFont: UIFont = UIFont.preferredFont(forTextStyle: UIFontTextStyle.title3)
     
     var titleSelectedTextColor: UIColor = .white
     var titleDeselectedTextColor: UIColor = .lightGray
@@ -234,6 +231,7 @@ class StepCell: UICollectionViewCell {
         
         theTitle.font = titleFont
         theTitle.textColor = titleDeselectedTextColor
+        theTitle.adjustsFontForContentSizeCategory = true
     }
     
     

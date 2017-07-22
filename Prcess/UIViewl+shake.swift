@@ -26,7 +26,7 @@ extension UIView {
         
         transform = rightWobble // starting point
         
-        UIView.animate(withDuration: 0.1, delay: 0.08, options: [.allowUserInteraction, .curveEaseOut, .repeat, .autoreverse], animations: { () -> Void in
+        UIView.animate(withDuration: 0.1, delay: 0.08, options: [.allowUserInteraction, .repeat, .autoreverse], animations: { () -> Void in
             self.transform = conCatTransform
         }, completion: {
         
