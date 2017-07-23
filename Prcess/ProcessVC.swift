@@ -163,9 +163,9 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
             
             guard collectionState == .rearrangement else { break }
             
-            performBatchUpdates()
-            
             collectionState = .normal
+            
+            performBatchUpdates()
             
             
         default:
@@ -203,6 +203,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     // MARK: - Cells (Represent Steps)
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
         return collectionView.dequeueReusableCell(withReuseIdentifier: reuseCellIdentifier, for: indexPath) as! StepCell
     }
     
@@ -229,9 +230,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         guard let view = view as? GoalFooter else { return }
         
         view.object = goal
-        
-        collectionState == .editing ? (view.isSetToEditingMode = true) : (view.isSetToEditingMode = false)
-        collectionState == .rearrangement ? (view.isSetToRearrangeMode = true) : (view.isSetToRearrangeMode = false)
+        view.viewState = collectionState
     }
     
     
@@ -392,11 +391,7 @@ extension ProcessVC {
             //self.collectionState = .normal
             self.resignFirstResponder()
             self.performBatchUpdates()
-            self.collectionView?.visibleCells.forEach {
-                let cell = $0 as! StepCell
-                cell.cellState = self.collectionState
-            }
-
+            self.setCollectionViewMode()
         })
     }
 }
@@ -421,7 +416,9 @@ extension ProcessVC {
         self.collectionView?.performBatchUpdates(
             { self.collectionView?.reloadSections(NSIndexSet(index: 0) as IndexSet)
         }, completion: { (finished:Bool) -> Void in
+        
         })
+        
     }
     
     
@@ -434,33 +431,12 @@ extension ProcessVC {
         
         collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionFooter).forEach {
             let footer = $0 as! GoalFooter
-            
-            switch collectionState {
-            case .normal:
-                footer.isSetToEditingMode = false
-                footer.isSetToRearrangeMode = false
-            case .editing:
-                footer.isSetToEditingMode = true
-                footer.isSetToRearrangeMode = false
-            case .rearrangement:
-                footer.isSetToEditingMode = true
-                footer.isSetToRearrangeMode = true
-            }
+            footer.viewState = collectionState
         }
         
         collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionHeader).forEach {
             let header = $0 as! GoalHeader
-            switch collectionState {
-            case .normal:
-                header.isSetToEditingMode = false
-                header.isSetToRearrangeMode = false
-            case .editing:
-                header.isSetToEditingMode = true
-                header.isSetToRearrangeMode = false
-            case .rearrangement:
-                header.isSetToEditingMode = true
-                header.isSetToRearrangeMode = true
-            }
+            header.viewState = collectionState
         }
     }
 }

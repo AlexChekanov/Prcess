@@ -62,7 +62,6 @@ class StepCell: UICollectionViewCell {
         lockIsHidden = canBeMoved
     }
     
-    
     var taskState: Task.State = .running {
         
         didSet {
@@ -99,30 +98,34 @@ class StepCell: UICollectionViewCell {
             
             if object != nil {
                 
-                title = NSMutableAttributedString(string: (object?.title ?? "")!)
                 taskState = object?.state ?? .running
                 canBeMoved = object?.canBeMoved ?? false
                 canBeDeleted = object?.canBeDeleted ?? false
+                title = NSMutableAttributedString(string: (object?.title ?? "")!)
             }
         }
     }
     
+    var canBeMoved: Bool = true
+    var canBeDeleted: Bool = true
     
-    // MARK: - View
+    var title: NSMutableAttributedString? = nil {
+        didSet {
+            
+            isSelected ? (title?.applyAttributes(ofStyle: selectedTextStyle)) :
+                (title?.applyAttributes(ofStyle: deselectedTextStyle))
+            theTitle.attributedText = title
+        }
+    }
     
-    
-    let constantElementsWidth: CGFloat = 65
-    
-    
-    // Styles
-    
-    let attentionColor = UIColor.orange.withAlphaComponent(0.8)
-    let denialColor = UIColor.red.withAlphaComponent(0.8)
-    let neutralAction = UIColor.white.withAlphaComponent(0.8)
-    
-    let textStyleForCalculations = TextStyle.taskHeadline.completed.selected.style
-    let acceptableWidthForTextOfOneLine: CGFloat = 60.0
-    
+    var isTheFirstCell: Bool = false {
+        
+        didSet {
+            
+            isTheFirstCell ? (arrow.alpha = 0) : (arrow.alpha = 1)
+        }
+    }
+
     
     // MARK: - Initialization
     
@@ -135,26 +138,11 @@ class StepCell: UICollectionViewCell {
         canBeDeleted = false
     }
     
-    func doInitialCalculations() {
-    }
-    
-    var title: NSMutableAttributedString? = nil {
-        didSet {
-            
-            isSelected ? (title?.applyAttributes(ofStyle: selectedTextStyle)) :
-                (title?.applyAttributes(ofStyle: deselectedTextStyle))
-            theTitle.attributedText = title
-        }
-    }
-    
-    var arrowFont: UIFont = TextStyle.taskHeadline.running.deselected.style.font!
-    var arrowTextColor: UIColor = TextStyle.taskHeadline.running.deselected.style.fontColor!
     var arrowIsHidden: Bool = false {
         didSet {
             arrowIsHidden ? arrow.fadeOut(duration: 0.2) : arrow.fadeIn(duration: 0.2)
         }
     }
-    
     
     var xIsHidden: Bool = false {
         didSet {
@@ -162,13 +150,11 @@ class StepCell: UICollectionViewCell {
         }
     }
     
-    
     var lockIsHidden: Bool = false {
         didSet {
             lockIsHidden ? lock.fadeOut(duration: 0.2) : lock.fadeIn(duration: 0.2)
         }
     }
-    
     
     var plusIsHidden: Bool = false {
         didSet {
@@ -177,40 +163,11 @@ class StepCell: UICollectionViewCell {
     }
     
     
-    var isTheFirstCell: Bool = false {
-        
-        didSet {
-            
-            isTheFirstCell ? (arrow.alpha = 0) : (arrow.alpha = 1)
-        }
-    }
-    
-    
-    var canBeMoved: Bool = true {
-        
-        didSet {
-            
-        }
-    }
-    
-    
-    var canBeDeleted: Bool = true {
-        
-        didSet {
-            
-        }
-    }
-    
-    
-    
     //MARK: - Overrides
     
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        doInitialCalculations()
-        
-        configureCellStyle()
         configureTitleView()
         configureArrowView()
         configureXView()
@@ -218,48 +175,50 @@ class StepCell: UICollectionViewCell {
         configurePlusView()
     }
     
-    
     override func prepareForReuse() {
         super.prepareForReuse()
         cleanUp()
     }
     
-    
-    
     override var isSelected: Bool {
         
         didSet {
-            let a = title
-            title = a
+            
+            if cellState == .normal {
+                let a = title
+                title = a
+            }
         }
         
         //ToDo: - send delegate!
     }
     
-    
-    
-    //MARK: - Cell styles
-    
-    func configureCellStyle(){
         
-        self.backgroundColor = .clear
-        self.clipsToBounds = false
-    }
+    // MARK: - Elements view configuration
     
+    let constantElementsWidth: CGFloat = 65
     
-    //MARK: - Elements view configuration
+    // Styles
+    
+    //let attentionColor = UIColor.orange.withAlphaComponent(0.8)
+    let denialColor = UIColor.red.withAlphaComponent(0.8)
+    let neutralAction = UIColor.white.withAlphaComponent(0.8)
+    
+    let textStyleForCalculations = TextStyle.taskHeadline.completed.selected.style
+    let acceptableWidthForTextOfOneLine: CGFloat = 60.0
+    
     
     func configureTitleView() {
         
         theTitle.adjustsFontForContentSizeCategory = true
     }
     
-    
     func configureArrowView() {
         
         arrow.text = "❭"
+        arrow.font = TextStyle.taskHeadline.running.deselected.style.font!
+        arrow.textColor = TextStyle.taskHeadline.running.deselected.style.fontColor!
     }
-    
     
     func configureXView() {
         
@@ -267,18 +226,17 @@ class StepCell: UICollectionViewCell {
         x.shadowStyle = Shadow.soft
     }
     
-    
     func configureLockView() {
         
         lock.tintColor = denialColor.withAlphaComponent(0.8)
         lock.shadowStyle = Shadow.soft
     }
     
-    
     func configurePlusView() {
         
         plus.tintColor = neutralAction
     }
+   
     
     //MARK: - Instruments
     

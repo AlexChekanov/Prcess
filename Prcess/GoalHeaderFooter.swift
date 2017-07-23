@@ -21,25 +21,61 @@ class GoalFooter: UICollectionReusableView {
     @IBOutlet private weak var service: UIView!
     
     
-    //Mark: - Variables
+    // MARK: - Controller
     
-    let constantElementsWidth: CGFloat = 97
+    var viewState: ProcessVC.CollectionState = .normal {
+        didSet {
+            switch self.viewState {
+            case .normal: setViewToNormalMode()
+            case .editing: setViewToEditingMode()
+            case .rearrangement: setViewToRearrangementMode()
+            }
+        }
+    }
     
-    
-    
-    //MARK: - Initialization
-    
-    func cleanUp(){
+    func setViewToNormalMode() {
         
-        title = nil
-        main.shakeOff()
+        xIsHidden = true
+        plusIsHidden = true
+        self.main.shakeOff()
     }
     
-    
-    //Mark: - Initial Calculations
-    
-    func doInitialCalculations() {
+    func setViewToEditingMode() {
+        
+        arrowIsHidden = true
+        xIsHidden = false
+        plusIsHidden = false
+        self.main.shakeOn()
     }
+    
+    func setViewToRearrangementMode() {
+        
+        arrowIsHidden = true
+        xIsHidden = true
+        plusIsHidden = true
+        
+    }
+    
+    var goalState: Goal.State = .running {
+        
+        didSet {
+            
+            switch self.goalState {
+            case .planned:
+                textStyle = TextStyle.goalHeadline.planned.style
+            case .running:
+                textStyle = TextStyle.goalHeadline.running.style
+            case .suspended:
+                textStyle = TextStyle.goalHeadline.suspended.style
+            case .completed:
+                textStyle = TextStyle.goalHeadline.completed.style
+            case .canceled:
+                textStyle = TextStyle.goalHeadline.canceled.style
+            }
+        }
+    }
+    
+    var textStyle: TextStyle = TextStyle.taskHeadline.running.deselected.style
     
     
     //MARK: - Inputs
@@ -49,7 +85,10 @@ class GoalFooter: UICollectionReusableView {
         didSet {
             
             if object != nil {
-                title = object?.title
+                
+                
+                goalState = object?.state ?? .running
+                title = NSMutableAttributedString(string: (object?.title ?? "")!)
                 
                 if let taskCount = object?.tasks?.count {
                     
@@ -63,16 +102,20 @@ class GoalFooter: UICollectionReusableView {
         
     }
     
-    var title: String? = nil {
+    var title: NSMutableAttributedString? = nil {
         didSet {
-            theTitle.text = title
+            
+            title?.applyAttributes(ofStyle: textStyle)
+            theTitle.attributedText = title
         }
     }
-    let titleFont: UIFont = UIFont.systemFont(ofSize: 18, weight: UIFontWeightBlack)
-    var titleTextColor: UIColor = .orange
     
-    var arrowFont: UIFont = UIFont.systemFont(ofSize: 18, weight: UIFontWeightThin)
-    var arrowTextColor: UIColor = .lightGray
+    func cleanUp(){
+        
+        viewState = .normal
+        title = nil
+    }
+    
     var arrowIsHidden: Bool = false {
         didSet {
             arrowIsHidden ? arrow.fadeOut(duration: 0.2) : arrow.fadeIn(duration: 0.2)
@@ -86,7 +129,6 @@ class GoalFooter: UICollectionReusableView {
         }
     }
     
-    var plusTintColor: UIColor = .lightGray
     var plusIsHidden: Bool = false {
         didSet {
             plusIsHidden ? plus.fadeOut(duration: 0.2) : plus.fadeIn(duration: 0.2)
@@ -100,37 +142,11 @@ class GoalFooter: UICollectionReusableView {
         }
     }
     
-    //MARK: - Controls
-    
-    var isSetToEditingMode = false {
-        didSet {
-            
-            xIsHidden = !isSetToEditingMode
-            plusIsHidden = !isSetToEditingMode
-            hasAnyTask ? (arrowIsHidden = isSetToEditingMode) : (arrowIsHidden = true)
-            isSetToEditingMode ? self.main.shakeOn() : self.main.shakeOff()
-        }
-    }
-    
-    var isSetToRearrangeMode = false {
-        didSet {
-            
-            if isSetToRearrangeMode {
-                xIsHidden = true
-                plusIsHidden = true
-            }
-        }
-    }
-    
-    
     //MARK: - Overrides
     
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        doInitialCalculations()
-        
-        configureCellStyle()
         configureTitleView()
         configureArrowView()
         configureXView()
@@ -143,38 +159,44 @@ class GoalFooter: UICollectionReusableView {
     }
     
     
-    
-    //MARK: - Cell styles
-    
-    func configureCellStyle(){
-        
-        self.backgroundColor = .clear
-        self.clipsToBounds = false
-    }
-    
-    
     //MARK: - Elements view configuration
+    
+    let constantElementsWidth: CGFloat = 97
+    
+    // Styles
+    
+    //let attentionColor = UIColor.orange.withAlphaComponent(0.8)
+    let denialColor = UIColor.red.withAlphaComponent(0.8)
+    let neutralAction = UIColor.white.withAlphaComponent(0.8)
+    
+    let textStyleForCalculations = TextStyle.goalHeadline.completed.style
+    let acceptableWidthForTextOfOneLine: CGFloat = 60.0
+    
     
     func configureTitleView() {
         
-        theTitle.font = titleFont
-        theTitle.textColor = titleTextColor
+        theTitle.adjustsFontForContentSizeCategory = true
     }
     
     
     func configureArrowView() {
         
         arrow.text = "❭"
+        arrow.font = TextStyle.taskHeadline.running.deselected.style.font!
+        arrow.textColor = TextStyle.taskHeadline.running.deselected.style.fontColor!
+        
     }
-    
     
     func configureXView() {
         
+        x.tintColor = neutralAction.withAlphaComponent(0.8)
         x.shadowStyle = Shadow.soft
     }
     
     
     func configurePlusView() {
+        
+        plus.tintColor = neutralAction
         
     }
     
@@ -186,7 +208,7 @@ class GoalFooter: UICollectionReusableView {
         
         if text != nil {
             
-            let labelFromTheTextWithOptimalWidth = UILabel(text: text, font: titleFont, maximumHeight: height, lineBreakMode: NSLineBreakMode.byWordWrapping, constantElementsWidth: 0.0, acceptableWidthForTextOfOneLine: 120, textColor: nil, backgroundColor: nil, textAlignment: NSTextAlignment.natural, userInteractionEnabled: nil)
+            let labelFromTheTextWithOptimalWidth = UILabel(text: text, font: textStyleForCalculations.font, maximumHeight: height, lineBreakMode: textStyleForCalculations.lineBreakMode, constantElementsWidth: 0.0, acceptableWidthForTextOfOneLine: acceptableWidthForTextOfOneLine, textColor: nil, backgroundColor: nil, textAlignment: textStyleForCalculations.alignment, userInteractionEnabled: nil)
             
             footerSize.width += labelFromTheTextWithOptimalWidth.bounds.width
         }
@@ -216,13 +238,17 @@ class GoalHeader: UICollectionReusableView {
     
     //MARK: - Controls
     
-    var isSetToEditingMode = false {
+    var viewState: ProcessVC.CollectionState = .normal {
         didSet {
+            switch self.viewState {
+            case .normal: setViewToNormalMode()
+            case .editing: setViewToEditingMode()
+            case .rearrangement: setViewToRearrangementMode()
+            }
         }
     }
     
-    var isSetToRearrangeMode = false {
-        didSet {
-        }
-    }
+    func setViewToNormalMode() {}
+    func setViewToEditingMode(){}
+    func setViewToRearrangementMode() {}
 }
