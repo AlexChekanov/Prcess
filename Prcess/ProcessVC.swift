@@ -53,7 +53,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     
     let data = Data()
     var tasks: [Task]? = []
-    var goal = Goal(title: nil, isCompleted: false, tasks: [])
+    var goal = Goal (title: nil, state: Goal.State.running, tasks: [])
     
     
     // MARK: - Data check

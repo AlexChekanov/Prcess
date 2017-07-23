@@ -10,155 +10,163 @@ import Foundation
 import UIKit
 
 
-// Mark: TextStyles
+// MARK: - TextStyles
 
+
+let basicDeselectedColor = UIColor.lightGray
+let basicSelectedColor = UIColor.white
+let basicFont = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
 
 extension TextStyle {
-    static var regularTaskHeadline: TextStyle {
+    
+    // MARK: - Task Headline
+    enum taskHeadline {
         
-        return TextStyle(
-            font: UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline),
-            fontColor: UIColor.lightGray,
-            fontBackgroundColor: nil,
+        //Planned
+        enum planned {
+            case selected, deselected
             
-            baselineOffset: 0,
+            var style: TextStyle {
+                
+                switch self {
+                case .selected: return {
+                    
+                    var δStyle = TextStyle.basic
+                    δStyle.font = basicFont
+                    δStyle.fontColor = basicSelectedColor
+                    
+                    return δStyle
+                    }()
+                    
+                case.deselected: return {
+                    
+                    var δStyle = TextStyle.basic
+                    δStyle.font = basicFont
+                    δStyle.fontColor = basicDeselectedColor
+                    
+                    return δStyle
+                    }()
+                }
+            }
+        }
+        
+        //Running
+        enum running {
+            case selected, deselected
             
-            strikethroughStyle: 0,
-            strikethroughColorAttributeName: UIColor.clear,
+            var style: TextStyle {
+                
+                switch self {
+                case .selected: return {
+                    
+                    var δStyle = TextStyle.basic
+                    δStyle.font = basicFont
+                    δStyle.fontColor = basicSelectedColor
+                    
+                    return δStyle
+                    }()
+                    
+                case.deselected: return {
+                    
+                    var δStyle = TextStyle.basic
+                    δStyle.font = basicFont
+                    δStyle.fontColor = basicDeselectedColor
+                    
+                    return δStyle
+                    }()
+                }
+            }
+        }
+        
+        //Suspended
+        enum suspended {
+            case selected, deselected
             
-            underlineStyle: 0,
-            underlineColor: nil,
+            var style: TextStyle {
+                
+                switch self {
+                case .selected: return {
+                    
+                    var δStyle = TextStyle.basic
+                    δStyle.font = basicFont
+                    δStyle.fontColor = basicSelectedColor
+                    
+                    return δStyle
+                    }()
+                    
+                case.deselected: return {
+                    
+                    var δStyle = TextStyle.basic
+                    δStyle.font = basicFont
+                    δStyle.fontColor = basicDeselectedColor
+                    
+                    return δStyle
+                    }()
+                }
+            }
+        }
+        
+        //Completed
+        enum completed {
+            case selected, deselected
             
-            strokeWidth: nil,
-            strokeColor: nil,
+            var style: TextStyle {
+                
+                switch self {
+                case .selected: return {
+                    
+                    var δStyle = TextStyle.basic
+                    δStyle.font = basicFont
+                    δStyle.fontColor = basicSelectedColor
+                    δStyle.strikethroughStyle = 2
+                    δStyle.strikethroughColorAttributeName = basicSelectedColor
+                    
+                    return δStyle
+                    }()
+                    
+                case.deselected: return {
+                    
+                    var δStyle = TextStyle.basic
+                    δStyle.font = basicFont
+                    δStyle.fontColor = basicDeselectedColor
+                    δStyle.strikethroughStyle = 2
+                    δStyle.strikethroughColorAttributeName = basicDeselectedColor
+                    
+                    
+                    return δStyle
+                    }()
+                }
+            }
+        }
+        
+        //Canceled
+        enum canceled {
+            case selected, deselected
             
-            textEffectAttributeName: nil,
-            
-            ligature: 1,
-            kern: nil,
-            
-            lineBreakMode: NSLineBreakMode.byWordWrapping,
-            allowsDefaultTighteningForTruncation: true,
-            hyphenationFactor: 0.0,
-            alignment: NSTextAlignment.natural,
-            lineHeightMultiple: nil,
-            
-            shadowColor: nil,
-            shadowBlurRadius: nil,
-            shadowOffset: nil
-        )
+            var style: TextStyle {
+                
+                switch self {
+                case .selected: return {
+                    
+                    var δStyle = TextStyle.basic
+                    δStyle.font = basicFont
+                    δStyle.fontColor = basicSelectedColor
+                    
+                    return δStyle
+                    }()
+                    
+                case.deselected: return {
+                    
+                    var δStyle = TextStyle.basic
+                    δStyle.font = basicFont
+                    δStyle.fontColor = basicDeselectedColor
+                    
+                    return δStyle
+                    }()
+                }
+            }
+        }
     }
 }
 
-extension TextStyle {
-    static var loaded: TextStyle {
-        
-        return TextStyle(
-            font: UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline),
-            fontColor: UIColor.lightGray,
-            fontBackgroundColor: UIColor.yellow,
-            
-            baselineOffset: 0,
-            
-            strikethroughStyle: 1,
-            strikethroughColorAttributeName: UIColor.green,
-            
-            underlineStyle: 3,
-            underlineColor: UIColor.blue,
-            
-            strokeWidth: -2,
-            strokeColor: UIColor.cyan,
-            
-            textEffectAttributeName: NSTextEffectLetterpressStyle,
-            
-            ligature: 1,
-            kern: 0,
-            
-            lineBreakMode: NSLineBreakMode.byWordWrapping,
-            allowsDefaultTighteningForTruncation: true,
-            hyphenationFactor: 0.0,
-            alignment: NSTextAlignment.center,
-            lineHeightMultiple: 0.4,
-            
-            shadowColor: .red,
-            shadowBlurRadius: 8,
-            shadowOffset: CGSize (width: 10, height: 10)
-        )
-    }
-}
-
-extension TextStyle {
-    static var stamp: TextStyle {
-        
-        return TextStyle(
-            font: UIFont.boldSystemFont(ofSize: 18),
-            fontColor: .red,
-            fontBackgroundColor: nil,
-            
-            baselineOffset: 0,
-            
-            strikethroughStyle: nil,
-            strikethroughColorAttributeName: nil,
-            
-            underlineStyle: nil,
-            underlineColor: nil,
-            
-            strokeWidth: nil,
-            strokeColor: nil,
-            
-            textEffectAttributeName: NSTextEffectLetterpressStyle,
-            
-            ligature: nil,
-            kern: nil,
-            
-            lineBreakMode: nil,
-            allowsDefaultTighteningForTruncation: true,
-            hyphenationFactor: nil,
-            alignment: nil,
-            lineHeightMultiple: nil,
-            
-            shadowColor: nil,
-            shadowBlurRadius: nil,
-            shadowOffset: nil
-        )
-    }
-}
-
-
-extension TextStyle {
-    static var empty: TextStyle {
-        
-        return TextStyle(
-            font: nil,
-            fontColor: nil,
-            fontBackgroundColor: nil,
-            
-            baselineOffset: nil,
-            
-            strikethroughStyle: nil,
-            strikethroughColorAttributeName: nil,
-            
-            underlineStyle: nil,
-            underlineColor: nil,
-            
-            strokeWidth: nil,
-            strokeColor: nil,
-            
-            textEffectAttributeName: nil,
-            
-            ligature: nil,
-            kern: nil,
-            
-            lineBreakMode: nil,
-            allowsDefaultTighteningForTruncation: true,
-            hyphenationFactor: nil,
-            alignment: nil,
-            lineHeightMultiple: nil,
-            
-            shadowColor: nil,
-            shadowBlurRadius: nil,
-            shadowOffset: nil
-        )
-    }
-}
 

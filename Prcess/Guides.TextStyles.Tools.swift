@@ -12,39 +12,117 @@ import UIKit
 
 // MARK: - TextStyles struct
 
-struct TextStyle {
+public struct TextStyle {
     
-    let font: UIFont?
-    let fontColor: UIColor?
-    let fontBackgroundColor: UIColor?
+    var font: UIFont?
+    var fontColor: UIColor?
+    var fontBackgroundColor: UIColor?
     
-    let baselineOffset: NSNumber?
+    var baselineOffset: NSNumber?
     
-    let strikethroughStyle: NSNumber?
-    let strikethroughColorAttributeName: UIColor?
+    var strikethroughStyle: NSNumber?
+    var strikethroughColorAttributeName: UIColor?
     
-    let underlineStyle: NSNumber?
-    let underlineColor: UIColor?
+    var underlineStyle: NSNumber?
+    var underlineColor: UIColor?
     
-    let strokeWidth: NSNumber? // NSNumber. In the negative fills the text
-    let strokeColor: UIColor?
+    var strokeWidth: NSNumber? // NSNumber. In the negative fills the text
+    var strokeColor: UIColor?
     
-    let textEffectAttributeName: String? // f.e.: NSTextEffectLetterpressStyle as NSString
+    var textEffectAttributeName: String? // f.e.: NSTextEffectLetterpressStyle as NSString
     
-    let ligature: NSNumber?
-    let kern: NSNumber?
+    var ligature: NSNumber?
+    var kern: NSNumber?
     
     // Paragraph
-    let lineBreakMode: NSLineBreakMode?
-    let allowsDefaultTighteningForTruncation: Bool?
-    let hyphenationFactor: Float? // 0.0—1.0
-    let alignment: NSTextAlignment?
-    let lineHeightMultiple: CGFloat?
+    var lineBreakMode: NSLineBreakMode?
+    var allowsDefaultTighteningForTruncation: Bool?
+    var hyphenationFactor: Float? // 0.0—1.0
+    var alignment: NSTextAlignment?
+    var lineHeightMultiple: CGFloat?
     
     // Shadow
-    let shadowColor: UIColor?
-    let shadowBlurRadius: CGFloat?
-    let shadowOffset: CGSize?
+    var shadowColor: UIColor?
+    var shadowBlurRadius: CGFloat?
+    var shadowOffset: CGSize?
+}
+
+
+// MARK: - Basic style
+
+extension TextStyle {
+    
+    static let basic: TextStyle = TextStyle(
+        font: nil,
+        fontColor: nil,
+        fontBackgroundColor: nil,
+        
+        baselineOffset: 0,
+        
+        strikethroughStyle: nil,
+        strikethroughColorAttributeName: nil,
+        
+        underlineStyle: nil,
+        underlineColor: nil,
+        
+        strokeWidth: nil,
+        strokeColor: nil,
+        
+        textEffectAttributeName: nil,
+        
+        ligature: 1,
+        kern: nil,
+        
+        lineBreakMode: NSLineBreakMode.byWordWrapping,
+        allowsDefaultTighteningForTruncation: true,
+        hyphenationFactor: 0.0,
+        alignment: NSTextAlignment.natural,
+        lineHeightMultiple: nil,
+        
+        shadowColor: nil,
+        shadowBlurRadius: nil,
+        shadowOffset: nil
+    )
+}
+
+
+// MARK: - Empty template
+
+extension TextStyle {
+    static var empty: TextStyle {
+        
+        return TextStyle(
+            font: nil,
+            fontColor: nil,
+            fontBackgroundColor: nil,
+            
+            baselineOffset: nil,
+            
+            strikethroughStyle: nil,
+            strikethroughColorAttributeName: nil,
+            
+            underlineStyle: nil,
+            underlineColor: nil,
+            
+            strokeWidth: nil,
+            strokeColor: nil,
+            
+            textEffectAttributeName: nil,
+            
+            ligature: nil,
+            kern: nil,
+            
+            lineBreakMode: nil,
+            allowsDefaultTighteningForTruncation: true,
+            hyphenationFactor: nil,
+            alignment: nil,
+            lineHeightMultiple: nil,
+            
+            shadowColor: nil,
+            shadowBlurRadius: nil,
+            shadowOffset: nil
+        )
+    }
 }
 
 
@@ -119,7 +197,6 @@ extension NSMutableAttributedString {
         
         
         self.addAttributes(attributes, range: NSMakeRange(0, self.length))
-        
     }
 }
 

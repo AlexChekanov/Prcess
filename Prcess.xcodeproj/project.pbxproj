@@ -68,8 +68,8 @@
 		3BCFEFC61F2265B6006B1C92 /* Guides */ = {
 			isa = PBXGroup;
 			children = (
-				3B54002F1F2131B2008BACAF /* Guides.Shadows.swift */,
 				3BCFEFC41F2265AC006B1C92 /* Guides.TextStyles.swift */,
+				3B54002F1F2131B2008BACAF /* Guides.Shadows.swift */,
 				3BCFEFCD1F23AA95006B1C92 /* Tools */,
 			);
 			name = Guides;

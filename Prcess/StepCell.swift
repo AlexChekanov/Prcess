@@ -16,20 +16,56 @@ class StepCell: UICollectionViewCell {
     @IBOutlet private weak var arrow: UILabel!
     @IBOutlet private weak var x: UIButton!
     @IBOutlet private weak var plus: UIButton!
-    @IBOutlet weak var lock: UIButton!
+    @IBOutlet private weak var lock: UIButton!
     
     @IBOutlet private weak var main: UIView!
     @IBOutlet private weak var service: UIView!
+    
+    //    enum TriStateSwitch {
+    //        case Off, Low, High
+    //        mutating func next() {
+    //            switch self {
+    //            case Off:
+    //                self = Low
+    //            case Low:
+    //                self = High
+    //            case High:
+    //                self = Off
+    //            }
+    //        }
+    //    }
+    //    var ovenLight = TriStateSwitch.Low
+    //    ovenLight.next()
+    //    // ovenLight is now equal to .High
+    //    ovenLight.next()
+    //    // ovenLight is now equal to .Off
+    //
+    //
+    //    enum CellSelectionState {
+    //        case deselected
+    //        case selected
+    //    }
+    //
+    //    enum TaskState {
+    //        case planned
+    //        case progressing
+    //        case completed
+    //    }
     
     
     //Mark: - Variables
     
     let constantElementsWidth: CGFloat = 65
     
-    //Style
+    //Styles
+    
+    
     let attentionColor = UIColor.orange.withAlphaComponent(0.8)
     let denialColor = UIColor.red.withAlphaComponent(0.8)
     let neutralAction = UIColor.white.withAlphaComponent(0.8)
+    
+    let textStyleForCalculations = TextStyle.taskHeadline.completed.selected.style
+    let acceptableWidthForTextOfOneLine: CGFloat = 60.0
     
     
     //MARK: - Initialization
@@ -57,34 +93,38 @@ class StepCell: UICollectionViewCell {
             
             if object != nil {
                 
-                let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: (object?.title ?? "")!)
-                attributeString.applyAttributes(ofStyle: TextStyle.stamp)
-                
-                title = attributeString
+                title = NSMutableAttributedString(string: (object?.title ?? "")!)
+                title?.applyAttributes(ofStyle: TextStyle.taskHeadline.completed.deselected.style)
+                theTitle.attributedText = title
                 canBeMoved = (object?.canBeMoved)!
                 canBeDeleted = (object?.canBeDeleted)!
             }
         }
     }
     
-    var title: NSAttributedString? = nil {
+        
+    var title: NSMutableAttributedString? = nil {
         didSet {
             theTitle.attributedText = title
         }
     }
     
-    let titleFont: UIFont = UIFont.preferredFont(forTextStyle: UIFontTextStyle.title3)
-    
-    var titleSelectedTextColor: UIColor = .white
-    var titleDeselectedTextColor: UIColor = .lightGray
     var titleIsHidden: Bool = false {
         didSet {
             titleIsHidden ? theTitle.fadeOut(duration: 0.2) : theTitle.fadeIn(duration: 0.2)
         }
     }
+    
     var titleIsSelected: Bool = false {
         didSet {
-            titleIsSelected ? (theTitle.textColor = titleSelectedTextColor) : (theTitle.textColor = titleDeselectedTextColor)
+            if titleIsSelected {
+                title?.applyAttributes(ofStyle: TextStyle.taskHeadline.running.selected.style)
+                theTitle.attributedText = title
+            } else {
+                title?.applyAttributes(ofStyle: TextStyle.taskHeadline.running.deselected.style)
+                theTitle.attributedText = title
+            }
+
         }
     }
     
@@ -208,9 +248,16 @@ class StepCell: UICollectionViewCell {
         
         didSet {
             
-            isSetToEditingMode ? () : (
-                isSelected ? (theTitle.textColor = titleSelectedTextColor) : (theTitle.textColor = titleDeselectedTextColor)
-            )
+            if isSetToEditingMode {} else {
+                if isSelected {
+                    title?.applyAttributes(ofStyle: TextStyle.taskHeadline.completed.selected.style)
+                    theTitle.attributedText = title
+                } else {
+                    title?.applyAttributes(ofStyle: TextStyle.taskHeadline.completed.deselected.style)
+                    theTitle.attributedText = title
+                }
+            }
+            
             //ToDo: - send delegate!
         }
     }
@@ -229,8 +276,6 @@ class StepCell: UICollectionViewCell {
     
     func configureTitleView() {
         
-        theTitle.font = titleFont
-        theTitle.textColor = titleDeselectedTextColor
         theTitle.adjustsFontForContentSizeCategory = true
     }
     
@@ -242,16 +287,16 @@ class StepCell: UICollectionViewCell {
     
     
     func configureXView() {
-        
+
+        x.tintColor = neutralAction.withAlphaComponent(0.8)
         x.shadowStyle = Shadow.soft
-        x.tintColor = UIColor.white.withAlphaComponent(0.8)
     }
     
     
     func configureLockView() {
         
+        lock.tintColor = denialColor.withAlphaComponent(0.8)
         lock.shadowStyle = Shadow.soft
-        lock.tintColor = UIColor.red.withAlphaComponent(0.8)
     }
     
     
@@ -267,7 +312,7 @@ class StepCell: UICollectionViewCell {
         
         if text != nil {
             
-            let labelFromTheTextWithOptimalWidth = UILabel(text: text, font: titleFont, maximumHeight: height, lineBreakMode: NSLineBreakMode.byWordWrapping, constantElementsWidth: 0.0, acceptableWidthForTextOfOneLine: 120, textColor: nil, backgroundColor: nil, textAlignment: NSTextAlignment.natural, userInteractionEnabled: nil)
+            let labelFromTheTextWithOptimalWidth = UILabel(text: text, font: textStyleForCalculations.font, maximumHeight: height, lineBreakMode: textStyleForCalculations.lineBreakMode, constantElementsWidth: 0.0, acceptableWidthForTextOfOneLine: acceptableWidthForTextOfOneLine, textColor: nil, backgroundColor: nil, textAlignment: textStyleForCalculations.alignment, userInteractionEnabled: nil)
             
             cellSize.width += labelFromTheTextWithOptimalWidth.bounds.width
         }

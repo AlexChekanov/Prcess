@@ -12,7 +12,7 @@ import UIKit
 
 // MARK: Shadows struct
 
-struct Shadow {
+public struct Shadow {
     
     let shadowColor: UIColor
     let shadowOffset: CGSize
