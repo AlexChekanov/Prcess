@@ -10,7 +10,7 @@ import UIKit
 
 class StepCell: UICollectionViewCell {
     
-    //Mark: - @IBOutlets
+    // MARK: - @IBOutlets
     
     @IBOutlet private weak var theTitle: UILabel!
     @IBOutlet private weak var arrow: UILabel!
@@ -21,44 +21,106 @@ class StepCell: UICollectionViewCell {
     @IBOutlet private weak var main: UIView!
     @IBOutlet private weak var service: UIView!
     
-    //    enum TriStateSwitch {
-    //        case Off, Low, High
-    //        mutating func next() {
-    //            switch self {
-    //            case Off:
-    //                self = Low
-    //            case Low:
-    //                self = High
-    //            case High:
-    //                self = Off
-    //            }
-    //        }
-    //    }
-    //    var ovenLight = TriStateSwitch.Low
-    //    ovenLight.next()
-    //    // ovenLight is now equal to .High
-    //    ovenLight.next()
-    //    // ovenLight is now equal to .Off
-    //
-    //
-    //    enum CellSelectionState {
-    //        case deselected
-    //        case selected
-    //    }
-    //
-    //    enum TaskState {
-    //        case planned
-    //        case progressing
-    //        case completed
-    //    }
+    
+    // MARK: - Controller
+    
+    enum CellState {
+        case normal
+        case editing
+        case rearrangement
+    }
+    
+    var cellState: CellState = .normal {
+        didSet {
+            switch self.cellState {
+            case .normal: setCellToNormalMode()
+            case .editing: setCellToEditingMode()
+            case .rearrangement: setCellToRearrangementMode()
+            }
+        }
+    }
+    
+    func setCellToNormalMode() {
+        
+        isTheFirstCell ? (arrowIsHidden = true) : (arrowIsHidden = false)
+        lockIsHidden = true
+        xIsHidden = true
+        plusIsHidden = true
+        self.main.shakeOff()
+    }
+    
+    func setCellToEditingMode() {
+        
+        isSelected = false
+        arrowIsHidden = true
+        lockIsHidden = canBeDeleted
+        xIsHidden = !canBeDeleted
+        plusIsHidden = false
+        self.main.shakeOn()
+        
+    }
+    
+    func setCellToRearrangementMode() {
+        isSelected = false
+        arrowIsHidden = true
+        xIsHidden = true
+        plusIsHidden = true
+        lockIsHidden = canBeMoved
+    }
     
     
-    //Mark: - Variables
+    var taskState: Task.State = .running {
+        
+        didSet {
+            
+            switch self.taskState {
+            case .planned:
+                deselectedTextStyle = TextStyle.taskHeadline.planned.deselected.style
+                selectedTextStyle = TextStyle.taskHeadline.planned.selected.style
+            case .running:
+                deselectedTextStyle = TextStyle.taskHeadline.running.deselected.style
+                selectedTextStyle = TextStyle.taskHeadline.running.selected.style
+            case .suspended:
+                deselectedTextStyle = TextStyle.taskHeadline.suspended.deselected.style
+                selectedTextStyle = TextStyle.taskHeadline.suspended.selected.style
+            case .completed:
+                deselectedTextStyle = TextStyle.taskHeadline.completed.deselected.style
+                selectedTextStyle = TextStyle.taskHeadline.completed.selected.style
+            case .canceled:
+                deselectedTextStyle = TextStyle.taskHeadline.canceled.deselected.style
+                selectedTextStyle = TextStyle.taskHeadline.canceled.selected.style
+            }
+        }
+    }
+    
+    var deselectedTextStyle: TextStyle = TextStyle.taskHeadline.running.deselected.style
+    var selectedTextStyle: TextStyle = TextStyle.taskHeadline.running.selected.style
+    
+    
+    // Input
+    
+    var object: Task? = nil {
+        
+        didSet {
+            
+            if object != nil {
+                
+                title = NSMutableAttributedString(string: (object?.title ?? "")!)
+                taskState = object?.state ?? .running
+                canBeMoved = object?.canBeMoved ?? false
+                canBeDeleted = object?.canBeDeleted ?? false
+            }
+        }
+    }
+    
+    
+    // MARK: - View
+    
     
     let constantElementsWidth: CGFloat = 65
     
-    //Styles
     
+    // Styles
     
     let attentionColor = UIColor.orange.withAlphaComponent(0.8)
     let denialColor = UIColor.red.withAlphaComponent(0.8)
@@ -68,68 +130,31 @@ class StepCell: UICollectionViewCell {
     let acceptableWidthForTextOfOneLine: CGFloat = 60.0
     
     
-    //MARK: - Initialization
+    // MARK: - Initialization
     
     func cleanUp(){
         
-        self.main.shakeOff()
+        cellState = .normal
         title = nil
         isTheFirstCell = false
         canBeMoved = false
         canBeDeleted = false
     }
     
-    
-    //Mark: - Initial Calculations
-    
     func doInitialCalculations() {
     }
     
-    //MARK: - Inputs
-    
-    var object: Task? = nil {
-        
-        didSet {
-            
-            if object != nil {
-                
-                title = NSMutableAttributedString(string: (object?.title ?? "")!)
-                title?.applyAttributes(ofStyle: TextStyle.taskHeadline.completed.deselected.style)
-                theTitle.attributedText = title
-                canBeMoved = (object?.canBeMoved)!
-                canBeDeleted = (object?.canBeDeleted)!
-            }
-        }
-    }
-    
-        
     var title: NSMutableAttributedString? = nil {
         didSet {
+            
+            isSelected ? (title?.applyAttributes(ofStyle: selectedTextStyle)) :
+                (title?.applyAttributes(ofStyle: deselectedTextStyle))
             theTitle.attributedText = title
         }
     }
     
-    var titleIsHidden: Bool = false {
-        didSet {
-            titleIsHidden ? theTitle.fadeOut(duration: 0.2) : theTitle.fadeIn(duration: 0.2)
-        }
-    }
-    
-    var titleIsSelected: Bool = false {
-        didSet {
-            if titleIsSelected {
-                title?.applyAttributes(ofStyle: TextStyle.taskHeadline.running.selected.style)
-                theTitle.attributedText = title
-            } else {
-                title?.applyAttributes(ofStyle: TextStyle.taskHeadline.running.deselected.style)
-                theTitle.attributedText = title
-            }
-
-        }
-    }
-    
-    var arrowFont: UIFont = UIFont.systemFont(ofSize: 18, weight: UIFontWeightThin)
-    var arrowTextColor: UIColor = .lightGray
+    var arrowFont: UIFont = TextStyle.taskHeadline.running.deselected.style.font!
+    var arrowTextColor: UIColor = TextStyle.taskHeadline.running.deselected.style.fontColor!
     var arrowIsHidden: Bool = false {
         didSet {
             arrowIsHidden ? arrow.fadeOut(duration: 0.2) : arrow.fadeIn(duration: 0.2)
@@ -151,7 +176,6 @@ class StepCell: UICollectionViewCell {
     }
     
     
-    var plusTintColor: UIColor = .lightGray
     var plusIsHidden: Bool = false {
         didSet {
             plusIsHidden ? plus.fadeOut(duration: 0.2) : plus.fadeIn(duration: 0.2)
@@ -184,42 +208,6 @@ class StepCell: UICollectionViewCell {
     }
     
     
-    //MARK: - Controls
-    
-    var isSetToEditingMode = false {
-        didSet {
-            
-            !isTheFirstCell ? (arrowIsHidden = isSetToEditingMode) : (arrowIsHidden = true)
-            
-            titleIsSelected = false
-            
-            if canBeDeleted {
-                
-                lockIsHidden = true
-                xIsHidden = !isSetToEditingMode
-                
-            } else {
-                
-                lockIsHidden = !isSetToEditingMode
-                xIsHidden = true
-            }
-            
-            plusIsHidden = !isSetToEditingMode
-            isSetToEditingMode ? self.main.shakeOn() : self.main.shakeOff()
-        }
-    }
-    
-    var isSetToRearrangeMode = false {
-        didSet {
-            
-            if isSetToRearrangeMode {
-                xIsHidden = true
-                plusIsHidden = true
-                lockIsHidden = canBeMoved
-            }
-        }
-    }
-    
     
     //MARK: - Overrides
     
@@ -247,20 +235,13 @@ class StepCell: UICollectionViewCell {
     override var isSelected: Bool {
         
         didSet {
-            
-            if isSetToEditingMode {} else {
-                if isSelected {
-                    title?.applyAttributes(ofStyle: TextStyle.taskHeadline.completed.selected.style)
-                    theTitle.attributedText = title
-                } else {
-                    title?.applyAttributes(ofStyle: TextStyle.taskHeadline.completed.deselected.style)
-                    theTitle.attributedText = title
-                }
-            }
-            
-            //ToDo: - send delegate!
+            let a = title
+            title = a
         }
+        
+        //ToDo: - send delegate!
     }
+    
     
     
     //MARK: - Cell styles
@@ -287,7 +268,7 @@ class StepCell: UICollectionViewCell {
     
     
     func configureXView() {
-
+        
         x.tintColor = neutralAction.withAlphaComponent(0.8)
         x.shadowStyle = Shadow.soft
     }
@@ -302,6 +283,7 @@ class StepCell: UICollectionViewCell {
     
     func configurePlusView() {
         
+        plus.tintColor = neutralAction
     }
     
     //MARK: - Instruments

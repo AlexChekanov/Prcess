@@ -13,27 +13,51 @@ private let reuseFooterIdentifier = "Goal"
 
 class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     
+    enum CollectionState {
+        case normal
+        case editing
+        case rearrangement
+        
+        mutating func next() {
+            switch self {
+            case .normal:
+                self = .editing
+            case .editing:
+                self = .rearrangement
+            case .rearrangement:
+                self = .normal
+            }
+        }
+    }
+    
+    
     // MARK: - Variables
+    
+    var collectionState: CollectionState = .normal {
+        
+        didSet {
+            
+            switch self.collectionState {
+            case .normal:
+                setCollectionViewToNormalMode()
+            case .editing:
+                setCollectionViewToEditingMode()
+            case .rearrangement:
+                setCollectionViewToRearrangeMode()
+            }
+            
+        }
+    }
     
     let lpgr = UILongPressGestureRecognizer()
     
     
     // States
     
-    var isSetToEditingMode: Bool = false {
-        
-        didSet { setCollectionViewToEditingMode() }
-    }
-    
-    var isSetToRearrangeMode: Bool = false {
-        
-        didSet { setCollectionViewToRearrangeMode() }
-    }
     
     func cleanUp() {
         
-        isSetToEditingMode = false
-        isSetToRearrangeMode = false
+        collectionState = .normal
     }
     
     // MARK: - Inputs
@@ -72,6 +96,8 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         
         collectionView?.dataSource = self
         collectionView?.delegate = self
+        
+        self.definesPresentationContext = false
     }
     
     func getData() {
@@ -128,23 +154,9 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
             
         case UIGestureRecognizerState.began:
             
+            collectionState.next()
             
-            if isSetToEditingMode {
-                
-                if isSetToRearrangeMode {
-                    
-                    isSetToEditingMode = false
-                    isSetToRearrangeMode = false
-                    
-                } else {
-                    isSetToRearrangeMode = true
-                }
-                
-            } else {
-                isSetToEditingMode = true
-            }
-            
-            guard isSetToRearrangeMode else { break }
+            guard collectionState == .rearrangement else { break }
             
             guard let selectedIndexPath = self.collectionView?.indexPathForItem(at: gesture.location(in: self.collectionView)) else { break }
             
@@ -159,31 +171,26 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
             
         case UIGestureRecognizerState.changed:
             
-            guard isSetToRearrangeMode else { break }
+            guard collectionState == .rearrangement else { break }
             
             let newPoint = CGPoint(x: (gesture.location(in: gesture.view!).x + dX), y: (gesture.location(in: gesture.view!).y + dY))
             
             collectionView?.updateInteractiveMovementTargetPosition(newPoint)
             
             
-            
         case UIGestureRecognizerState.ended:
             
             collectionView?.endInteractiveMovement()
             
+            guard collectionState == .rearrangement else { break }
             
-            if isSetToRearrangeMode {
-                
-                self.collectionView?.performBatchUpdates(
-                    {
-                        self.collectionView?.reloadSections(NSIndexSet(index: 0) as IndexSet)
-                }, completion: { (finished:Bool) -> Void in
-                })
-                
-                isSetToRearrangeMode = false
-                isSetToEditingMode = false
-                
-            }
+            self.collectionView?.performBatchUpdates(
+                { self.collectionView?.reloadSections(NSIndexSet(index: 0) as IndexSet)
+            }, completion: { (finished:Bool) -> Void in
+            })
+            
+            collectionState = .normal
+            
             
         default:
             
@@ -228,12 +235,15 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         
         guard let cell = cell as? StepCell else { return }
         
-        cell.object = tasks?[indexPath.row]
-        
-        isSetToEditingMode ? (cell.isSetToEditingMode = true) : (cell.isSetToEditingMode = false)
-        isSetToRearrangeMode ? (cell.isSetToRearrangeMode = true) : (cell.isSetToRearrangeMode = false)
+        switch collectionState {
+        case .normal: cell.cellState = .normal
+        case .editing: cell.cellState = .editing
+        case .rearrangement: cell.cellState = .rearrangement
+        }
         
         if indexPath.row == 0 { cell.isTheFirstCell = true } else { cell.isTheFirstCell = false }
+        
+        cell.object = tasks?[indexPath.row]
     }
     
     
@@ -250,8 +260,8 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         
         view.object = goal
         
-        isSetToEditingMode ? (view.isSetToEditingMode = true) : (view.isSetToEditingMode = false)
-        isSetToRearrangeMode ? (view.isSetToRearrangeMode = true) : (view.isSetToRearrangeMode = false)
+        collectionState == .editing ? (view.isSetToEditingMode = true) : (view.isSetToEditingMode = false)
+        collectionState == .rearrangement ? (view.isSetToRearrangeMode = true) : (view.isSetToRearrangeMode = false)
     }
     
     
@@ -429,21 +439,42 @@ extension UICollectionViewFlowLayout {
 
 extension ProcessVC {
     
-    func setCollectionViewToEditingMode () {
+    func setCollectionViewToNormalMode() {
         
         collectionView?.visibleCells.forEach {
             let cell = $0 as! StepCell
-            cell.isSetToEditingMode = isSetToEditingMode
+            cell.cellState = .normal
         }
         
         collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionFooter).forEach {
             let footer = $0 as! GoalFooter
-            footer.isSetToEditingMode = isSetToEditingMode
+            footer.isSetToEditingMode = (collectionState == .editing)
         }
         
         collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionHeader).forEach {
             let header = $0 as! GoalHeader
-            header.isSetToEditingMode = isSetToEditingMode
+            header.isSetToEditingMode = (collectionState == .editing)
+        }
+        
+        
+    }
+    
+    
+    func setCollectionViewToEditingMode () {
+        
+        collectionView?.visibleCells.forEach {
+            let cell = $0 as! StepCell
+            cell.cellState = .editing
+        }
+        
+        collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionFooter).forEach {
+            let footer = $0 as! GoalFooter
+            footer.isSetToEditingMode = (collectionState == .editing)
+        }
+        
+        collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionHeader).forEach {
+            let header = $0 as! GoalHeader
+            header.isSetToEditingMode = (collectionState == .editing)
         }
     }
     
@@ -452,13 +483,13 @@ extension ProcessVC {
         collectionView?.visibleCells.forEach {
             
             let cell = $0 as! StepCell
-            cell.isSetToRearrangeMode = isSetToRearrangeMode
+            cell.cellState = .rearrangement
         }
         
         collectionView?.visibleSupplementaryViews(ofKind: UICollectionElementKindSectionFooter).forEach {
             
             let footer = $0 as! GoalFooter
-            footer.isSetToRearrangeMode = isSetToRearrangeMode
+            footer.isSetToRearrangeMode = (collectionState == .rearrangement)
         }
         
     }
