@@ -24,13 +24,7 @@ class StepCell: UICollectionViewCell {
     
     // MARK: - Controller
     
-    enum CellState {
-        case normal
-        case editing
-        case rearrangement
-    }
-    
-    var cellState: CellState = .normal {
+    var cellState: ProcessVC.CollectionState = .normal {
         didSet {
             switch self.cellState {
             case .normal: setCellToNormalMode()
