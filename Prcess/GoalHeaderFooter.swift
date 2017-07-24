@@ -75,7 +75,7 @@ class GoalFooter: UICollectionReusableView {
         }
     }
     
-    var textStyle: TextStyle = TextStyle.taskHeadline.running.deselected.style
+    var textStyle: TextStyle = TextStyle.goalHeadline.running.style
     
     
     //MARK: - Inputs
@@ -161,7 +161,7 @@ class GoalFooter: UICollectionReusableView {
     
     //MARK: - Elements view configuration
     
-    let constantElementsWidth: CGFloat = 97
+    let constantElementsWidth: CGFloat = 103
     
     // Styles
     
@@ -176,6 +176,7 @@ class GoalFooter: UICollectionReusableView {
     func configureTitleView() {
         
         theTitle.adjustsFontForContentSizeCategory = true
+        self.sendSubview(toBack: theTitle)
     }
     
     

@@ -98,6 +98,9 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
             return
         }
         
+        self.collectionView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.collectionView?.sizeToFit()
+        
         self.getData()
         self.setting()
         self.cleanUp()
@@ -290,6 +293,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
 extension ProcessVC: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
+        guard ((self.collectionView?.frame.height) != nil) else { return CGSize.zero }
         
         let cellHeight = (self.collectionView?.bounds.height)!*0.8
         
@@ -305,13 +309,14 @@ extension ProcessVC: UICollectionViewDelegateFlowLayout {
         
         guard ((self.collectionView?.frame.height) != nil) else { return CGSize.zero }
         
-        let footerHeight = self.collectionView?.bounds.height
+        let footerHeight = (self.collectionView?.bounds.height)!*0.8
         let footer = GoalFooter()
-        let footerSize: CGSize = footer.getFooterSize(fromText: goal.title, withHeight: footerHeight!)
+        let footerSize: CGSize = footer.getFooterSize(fromText: goal.title, withHeight: footerHeight)
         
         return footerSize
     }
 }
+
 
 
 // MARK: - Reorder
@@ -388,13 +393,17 @@ extension ProcessVC {
         coordinator.animate(alongsideTransition: nil, completion: {
             _ in
             
-            //self.collectionState = .normal
-            self.resignFirstResponder()
+            self.collectionViewLayout.invalidateLayout()
             self.performBatchUpdates()
             self.setCollectionViewMode()
         })
     }
+
+    
+
 }
+
+
 
 extension UICollectionViewFlowLayout {
     override open func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {

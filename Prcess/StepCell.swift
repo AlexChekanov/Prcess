@@ -112,8 +112,13 @@ class StepCell: UICollectionViewCell {
     var title: NSMutableAttributedString? = nil {
         didSet {
             
-            isSelected ? (title?.applyAttributes(ofStyle: selectedTextStyle)) :
-                (title?.applyAttributes(ofStyle: deselectedTextStyle))
+            if isSelected && (cellState == .normal) {
+                
+                title?.applyAttributes(ofStyle: selectedTextStyle)
+            } else {
+                title?.applyAttributes(ofStyle: deselectedTextStyle)
+            }
+            
             theTitle.attributedText = title
         }
     }
@@ -125,7 +130,7 @@ class StepCell: UICollectionViewCell {
             isTheFirstCell ? (arrow.alpha = 0) : (arrow.alpha = 1)
         }
     }
-
+    
     
     // MARK: - Initialization
     
@@ -184,19 +189,18 @@ class StepCell: UICollectionViewCell {
         
         didSet {
             
-            if cellState == .normal {
-                let a = title
-                title = a
-            }
+            let a = title
+            title = a
         }
+        
         
         //ToDo: - send delegate!
     }
     
-        
+    
     // MARK: - Elements view configuration
     
-    let constantElementsWidth: CGFloat = 65
+    let constantElementsWidth: CGFloat = 63
     
     // Styles
     
@@ -211,6 +215,7 @@ class StepCell: UICollectionViewCell {
     func configureTitleView() {
         
         theTitle.adjustsFontForContentSizeCategory = true
+        self.sendSubview(toBack: theTitle)
     }
     
     func configureArrowView() {
@@ -218,6 +223,7 @@ class StepCell: UICollectionViewCell {
         arrow.text = "❭"
         arrow.font = TextStyle.taskHeadline.running.deselected.style.font!
         arrow.textColor = TextStyle.taskHeadline.running.deselected.style.fontColor!
+        arrow.adjustsFontForContentSizeCategory = true
     }
     
     func configureXView() {
@@ -236,7 +242,7 @@ class StepCell: UICollectionViewCell {
         
         plus.tintColor = neutralAction
     }
-   
+    
     
     //MARK: - Instruments
     

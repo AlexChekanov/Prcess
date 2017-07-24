@@ -79,15 +79,28 @@ class Data {
     
     var taskSet3: [Task]
     
+    var taskSet4: [Task]
+    
     var goals: [Goal]
     
     var currentGoal: Goal?
     
-    let currentGoalIndex: Int = 0
+    let currentGoalIndex: Int = 1
     
     init() {
 
         taskSet1 = [
+            
+            Task(title: "Отремонтировать неремонтопригодный мотороллер", order: 0, state: .completed, canBeMoved: true, canBeDeleted: false),
+            Task(title: "Задекларировать доходы, полученные от перепродажи сахарного тростника", order: 1, state: .running, canBeMoved: true, canBeDeleted: true),
+            Task(title: "Выбрать шляпу", order: 5, state: .running, canBeMoved: false, canBeDeleted: true),
+            Task(title: "Подать документы на регистрацию юрлица", order: 2, state: .running, canBeMoved: true, canBeDeleted: true),
+            Task(title: "Любой длинный текст, который нормальные люди в заголовок не напишут", order: 3, state: .running, canBeMoved: true, canBeDeleted: true),
+            Task(title: "Ы", order: 4, state: .running, canBeMoved: true, canBeDeleted: true),
+        ]
+
+        
+        taskSet2 = [
             
             Task(title: "Check the car", order: 0, state: .completed, canBeMoved: true, canBeDeleted: false),
             Task(title: "Disassemble the car", order: 1, state: .running, canBeMoved: true, canBeDeleted: true),
@@ -97,9 +110,9 @@ class Data {
             Task(title: "Assemble the car", order: 4, state: .running, canBeMoved: true, canBeDeleted: true),
         ]
 
-        taskSet2 = []
+        taskSet3 = []
         
-        taskSet3 = [
+        taskSet4 = [
             
             Task(title: "Check", order: 0, state: .running, canBeMoved: true, canBeDeleted: false),
             Task(title: "Disassemble", order: 1, state: .running, canBeMoved: true, canBeDeleted: true),
@@ -112,8 +125,9 @@ class Data {
         
         goals = [
             
-            Goal(title: "Get rid of the car", state: .running, tasks: taskSet1),
+            Goal(title: "Неприлично длинная по своей формулировке цель", state: .running, tasks: taskSet1), //Get rid of the car
             Goal(title: "Aerocomic goal", state: .completed, tasks: taskSet2),
+            Goal(title: "Aerocomic goal", state: .completed, tasks: taskSet3),
             Goal(title: nil, state: .completed, tasks: taskSet2)
         ]
         

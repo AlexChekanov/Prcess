@@ -107,7 +107,6 @@ extension UILabel {
                             testWidthShouldBeMultipliedOnNextIteration = false
                         }
                     }
-                    print(startWidth)
                     
                     if (startWidth > 0.0 && startWidth >= minimalWidth) {flexibleWidth = startWidth}
                     
@@ -131,13 +130,7 @@ extension UILabel {
                             options: [NSStringDrawingOptions.usesLineFragmentOrigin],
                             context: nil).size.height
                         
-                        print("Width: \(flexibleWidth)")
-                        print("Height: \(flexibleHeight)")
-                        print("_______________________")
                     }
-                    
-                    print("Final Width: \(optimalWidth)")
-                    print("Final Height: \(optimalHeight)")
                     
                     if (widthJumps.count > 1) && (optimalWidth/widthJumps.last! >= 0.72) {optimalWidth = widthJumps.last!}
                     
