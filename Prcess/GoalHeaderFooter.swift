@@ -35,25 +35,25 @@ class GoalFooter: UICollectionReusableView {
     
     func setViewToNormalMode() {
         
+        self.main.shakeOff()
         xIsHidden = true
         plusIsHidden = true
-        self.main.shakeOff()
+        hasAnyTask ? (arrowIsHidden = false) : (arrowIsHidden = true)
     }
     
     func setViewToEditingMode() {
         
-        arrowIsHidden = true
+        self.main.shakeOn()
         xIsHidden = false
         plusIsHidden = false
-        self.main.shakeOn()
+        arrowIsHidden = true
     }
     
     func setViewToRearrangementMode() {
         
-        arrowIsHidden = true
         xIsHidden = true
         plusIsHidden = true
-        
+        arrowIsHidden = true
     }
     
     var goalState: Goal.State = .running {
@@ -111,9 +111,6 @@ class GoalFooter: UICollectionReusableView {
     }
     
     func cleanUp(){
-        
-        viewState = .normal
-        title = nil
     }
     
     var arrowIsHidden: Bool = false {
@@ -185,8 +182,8 @@ class GoalFooter: UICollectionReusableView {
         arrow.text = "❭"
         arrow.font = TextStyle.taskHeadline.running.deselected.style.font!
         arrow.textColor = TextStyle.taskHeadline.running.deselected.style.fontColor!
-        
     }
+    
     
     func configureXView() {
         
