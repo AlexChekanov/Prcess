@@ -37,7 +37,6 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         didSet {
             setCollectionViewMode()
         }
-        
     }
     
     let lpgr = UILongPressGestureRecognizer()
@@ -166,10 +165,12 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
             
             guard collectionState == .rearrangement else { break }
             
-            collectionState = .normal
-            
             performBatchUpdates()
             
+            collectionState = .normal
+            
+            δX = 0.0
+            δY = 0.0
             
         default:
             
@@ -332,7 +333,6 @@ extension ProcessVC {
         return cell.canBeMoved
     }
     
-    
     // Perform move action
     
     override func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath,
@@ -376,13 +376,12 @@ extension UICollectionViewFlowLayout {
     open override func layoutAttributesForInteractivelyMovingItem(at indexPath: IndexPath, withTargetPosition position: CGPoint) -> UICollectionViewLayoutAttributes {
         let attributes = super.layoutAttributesForInteractivelyMovingItem(at: indexPath, withTargetPosition: position)
         
-        attributes.alpha = 0.8
-        
-        //attributes.transform = CGAffineTransform.init(scaleX: 1.1, y: 1.1)
+        attributes.alpha = 0.6
         
         return attributes
     }
 }
+
 
 // MARK: - Rotation
 
@@ -398,12 +397,7 @@ extension ProcessVC {
             self.setCollectionViewMode()
         })
     }
-
-    
-
 }
-
-
 
 extension UICollectionViewFlowLayout {
     override open func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
@@ -416,18 +410,19 @@ extension UICollectionViewFlowLayout {
     }
 }
 
+
 // Mark: - Service methods
 
 extension ProcessVC {
     
     
     func performBatchUpdates() {
+        
         self.collectionView?.performBatchUpdates(
             { self.collectionView?.reloadSections(NSIndexSet(index: 0) as IndexSet)
         }, completion: { (finished:Bool) -> Void in
-        
+            
         })
-        
     }
     
     

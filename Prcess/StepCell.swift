@@ -36,22 +36,21 @@ class StepCell: UICollectionViewCell {
     
     func setCellToNormalMode() {
         
-        isTheFirstCell ? (arrowIsHidden = true) : (arrowIsHidden = false)
         lockIsHidden = true
         xIsHidden = true
         plusIsHidden = true
         self.main.shakeOff()
+        isTheFirstCell ? (arrowIsHidden = true) : (arrowIsHidden = false)
     }
     
     func setCellToEditingMode() {
         
         isSelected = false
-        arrowIsHidden = true
         lockIsHidden = canBeDeleted
         xIsHidden = !canBeDeleted
         plusIsHidden = false
+        arrowIsHidden = true
         self.main.shakeOn()
-        
     }
     
     func setCellToRearrangementMode() {
@@ -127,25 +126,16 @@ class StepCell: UICollectionViewCell {
         
         didSet {
             
-            isTheFirstCell ? (arrow.alpha = 0) : (arrow.alpha = 1)
+            isTheFirstCell ? (arrowIsHidden = true) : (arrowIsHidden = false)
         }
     }
     
     
     // MARK: - Initialization
     
-    func cleanUp(){
-        
-        cellState = .normal
-        title = nil
-        isTheFirstCell = false
-        canBeMoved = false
-        canBeDeleted = false
-    }
-    
     var arrowIsHidden: Bool = false {
         didSet {
-            arrowIsHidden ? arrow.fadeOut(duration: 0.2) : arrow.fadeIn(duration: 0.2)
+            (arrowIsHidden || isTheFirstCell) ? arrow.fadeOut(duration: 0.2) : arrow.fadeIn(duration: 0.2)
         }
     }
     
@@ -182,7 +172,6 @@ class StepCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        cleanUp()
     }
     
     override var isSelected: Bool {
@@ -201,6 +190,7 @@ class StepCell: UICollectionViewCell {
     // MARK: - Elements view configuration
     
     let constantElementsWidth: CGFloat = 63
+    
     
     // Styles
     
