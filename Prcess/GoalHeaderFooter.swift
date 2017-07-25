@@ -20,6 +20,11 @@ class GoalFooter: UICollectionReusableView {
     @IBOutlet private weak var main: UIView!
     @IBOutlet private weak var service: UIView!
     
+    // MARK: - CleanUp
+    
+    func cleanUp(){
+        self.main.shakeOff()
+    }
     
     // MARK: - Controller
     
@@ -108,9 +113,6 @@ class GoalFooter: UICollectionReusableView {
             title?.applyAttributes(ofStyle: textStyle)
             theTitle.attributedText = title
         }
-    }
-    
-    func cleanUp(){
     }
     
     var arrowIsHidden: Bool = false {

@@ -22,6 +22,13 @@ class StepCell: UICollectionViewCell {
     @IBOutlet private weak var service: UIView!
     
     
+    // MARK: - CleanUp
+    
+    func cleanUp(){
+        self.main.shakeOff()
+    }
+    
+    
     // MARK: - Controller
     
     var cellState: ProcessVC.CollectionState = .normal {
@@ -172,6 +179,7 @@ class StepCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
+        cleanUp()
     }
     
     override var isSelected: Bool {

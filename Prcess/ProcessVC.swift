@@ -188,8 +188,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         // #warning Incomplete implementation, return the number of sections
         return 1
     }
-    
-    
+        
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
         
@@ -210,7 +209,6 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         
         return collectionView.dequeueReusableCell(withReuseIdentifier: reuseCellIdentifier, for: indexPath) as! StepCell
     }
-    
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell,
                                  forItemAt indexPath: IndexPath) {
@@ -288,8 +286,8 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
      */
 }
 
-// MARK: - Layout
 
+// MARK: - Layout
 
 extension ProcessVC: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -317,7 +315,6 @@ extension ProcessVC: UICollectionViewDelegateFlowLayout {
         return footerSize
     }
 }
-
 
 
 // MARK: - Reorder
@@ -370,7 +367,6 @@ extension UICollectionViewFlowLayout {
     
     open override func invalidationContextForEndingInteractiveMovementOfItems(toFinalIndexPaths indexPaths: [IndexPath], previousIndexPaths: [IndexPath], movementCancelled: Bool) -> UICollectionViewLayoutInvalidationContext {
         
-        print("invalidationContextForEndingInteractiveMovementOfItems")
         return super.invalidationContextForEndingInteractiveMovementOfItems(toFinalIndexPaths: indexPaths, previousIndexPaths: previousIndexPaths, movementCancelled: movementCancelled)
     }
     
