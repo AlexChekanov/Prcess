@@ -26,6 +26,11 @@ class StepCell: UICollectionViewCell {
     
     func cleanUp(){
         self.main.shakeOff()
+        theTitle.text = nil
+        arrow.alpha = 0
+        x.alpha = 0
+        plus.alpha = 0
+        lock.alpha = 0
     }
     
     

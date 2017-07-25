@@ -39,6 +39,8 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         }
     }
     
+    var layoutCache = [IndexPath : CGSize]()
+    
     let lpgr = UILongPressGestureRecognizer()
     
     
@@ -49,7 +51,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     // MARK: - CleanUp
     
     func cleanUp() {
-        
+        layoutCache.removeAll()
     }
     
     // MARK: - Initialization
@@ -188,7 +190,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         // #warning Incomplete implementation, return the number of sections
         return 1
     }
-        
+    
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
         
@@ -296,12 +298,17 @@ extension ProcessVC: UICollectionViewDelegateFlowLayout {
         
         let cellHeight = (self.collectionView?.bounds.height)!*0.8
         
-        let cell = StepCell()
-        let text = tasks?[indexPath.row].title
+        if layoutCache[indexPath] == nil {
+            
+            let cell = StepCell()
+            let text = tasks?[indexPath.row].title
+            
+            layoutCache[indexPath] = cell.getCellSize(fromText: text, withHeight: cellHeight)
+            
+            print (layoutCache[indexPath] as Any)
+        }
         
-        let cellSize: CGSize = cell.getCellSize(fromText: text, withHeight: cellHeight)
-        
-        return cellSize
+        return layoutCache[indexPath]!
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
@@ -341,6 +348,14 @@ extension ProcessVC {
                 return
             }
             
+            if abs(sourceIndexPath.row - destinationIndexPath.row) > 1 {
+                self.layoutCache.removeAll()
+                print("All indexes removed")
+            } else {
+                layoutCache[sourceIndexPath] = nil
+                layoutCache[destinationIndexPath] = nil
+                print("Some indexes removed")
+            }
             //Update external data
             data.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
             
@@ -390,6 +405,9 @@ extension ProcessVC {
         coordinator.animate(alongsideTransition: nil, completion: {
             _ in
             
+            self.resignFirstResponder()
+            if (self.collectionState == .rearrangement) { self.collectionState = .normal }
+            self.layoutCache.removeAll()
             self.collectionViewLayout.invalidateLayout()
             self.performBatchUpdates()
             self.setCollectionViewMode()
