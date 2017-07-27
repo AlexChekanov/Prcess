@@ -182,9 +182,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     }
     
     
-    
     // MARK: - Collection elements
-    
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         // #warning Incomplete implementation, return the number of sections
@@ -217,6 +215,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         
         guard let cell = cell as? StepCell else { return }
         if indexPath.row == 0 { cell.isTheFirstCell = true } else { cell.isTheFirstCell = false }
+        
         cell.object = tasks?[indexPath.row]
         cell.cellState = collectionState
     }
@@ -292,6 +291,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
 // MARK: - Layout
 
 extension ProcessVC: UICollectionViewDelegateFlowLayout {
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         guard ((self.collectionView?.frame.height) != nil) else { return CGSize.zero }
@@ -304,8 +304,6 @@ extension ProcessVC: UICollectionViewDelegateFlowLayout {
             let text = tasks?[indexPath.row].title
             
             layoutCache[indexPath] = cell.getCellSize(fromText: text, withHeight: cellHeight)
-            
-            print (layoutCache[indexPath] as Any)
         }
         
         return layoutCache[indexPath]!
@@ -350,15 +348,13 @@ extension ProcessVC {
             
             if abs(sourceIndexPath.row - destinationIndexPath.row) > 1 {
                 self.layoutCache.removeAll()
-                print("All indexes removed")
             } else {
                 layoutCache[sourceIndexPath] = nil
                 layoutCache[destinationIndexPath] = nil
-                print("Some indexes removed")
             }
+            
             //Update external data
             data.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
-            
             
             //Update internal data
             tasks = (data.currentGoal?.tasks)!
@@ -374,7 +370,7 @@ extension UICollectionViewFlowLayout {
         let context = super.invalidationContext(forInteractivelyMovingItems: targetIndexPaths, withTargetPosition: targetPosition, previousIndexPaths: previousIndexPaths, previousPosition: previousPosition)
         
         if previousIndexPaths.first!.item != targetIndexPaths.first!.item {
-            collectionView?.dataSource?.collectionView?(collectionView!, moveItemAt: previousIndexPaths.first!, to: targetIndexPaths.first!)
+            collectionView?.dataSource?.collectionView?(collectionView!, moveItemAt: previousIndexPaths.first!, to: targetIndexPaths.last!)
         }
         
         return context

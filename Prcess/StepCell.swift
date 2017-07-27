@@ -25,12 +25,12 @@ class StepCell: UICollectionViewCell {
     // MARK: - CleanUp
     
     func cleanUp(){
-        self.main.shakeOff()
-        theTitle.text = nil
-        arrow.alpha = 0
+        
+        title = nil
         x.alpha = 0
         plus.alpha = 0
         lock.alpha = 0
+        arrow.alpha = 0
     }
     
     
@@ -46,31 +46,43 @@ class StepCell: UICollectionViewCell {
         }
     }
     
+    
     func setCellToNormalMode() {
         
-        lockIsHidden = true
-        xIsHidden = true
-        plusIsHidden = true
+        
+        lock.alpha == 0 ? () : (lockIsHidden = true)
+        x.alpha == 0 ? () : (xIsHidden = true)
+        plus.alpha == 0 ? () : (plusIsHidden = true)
+        isTheFirstCell ? (arrow.alpha = 0) : (
+            arrow.alpha == 0 ? (arrowIsHidden = false) : ()
+        )
+        
+        guard main.layer.animation(forKey: "bounce") != nil else { return }
         self.main.shakeOff()
-        isTheFirstCell ? (arrowIsHidden = true) : (arrowIsHidden = false)
     }
     
     func setCellToEditingMode() {
         
-        isSelected = false
+        isSelected ? (isSelected = false) : ()
         lockIsHidden = canBeDeleted
         xIsHidden = !canBeDeleted
-        plusIsHidden = false
-        arrowIsHidden = true
+        plus.alpha == 0  ? (plusIsHidden = false) : ()
+        arrow.alpha == 0 ? () : (arrowIsHidden = true)
+        
+        guard main.layer.animation(forKey: "bounce") == nil else { return }
         self.main.shakeOn()
     }
     
     func setCellToRearrangementMode() {
-        isSelected = false
-        arrowIsHidden = true
-        xIsHidden = true
-        plusIsHidden = true
+        
+        isSelected ? (isSelected = false) : ()
         lockIsHidden = canBeMoved
+        x.alpha == 0 ? () : (xIsHidden = true)
+        plus.alpha == 0 ? () : (plusIsHidden = true)
+        arrow.alpha == 0 ? () : (arrowIsHidden = true)
+        
+        guard main.layer.animation(forKey: "bounce") == nil else { return }
+        self.main.shakeOn()
     }
     
     var taskState: Task.State = .running {
@@ -138,7 +150,7 @@ class StepCell: UICollectionViewCell {
         
         didSet {
             
-            isTheFirstCell ? (arrowIsHidden = true) : (arrowIsHidden = false)
+            isTheFirstCell ? (arrow.alpha = 0) : (arrowIsHidden = false)
         }
     }
     
@@ -147,25 +159,25 @@ class StepCell: UICollectionViewCell {
     
     var arrowIsHidden: Bool = false {
         didSet {
-            (arrowIsHidden || isTheFirstCell) ? arrow.fadeOut(duration: 0.2) : arrow.fadeIn(duration: 0.2)
+            arrowIsHidden ? arrow.fadeOutResized(duration: 0.2) : arrow.fadeInResized(duration: 0.2)
         }
     }
     
-    var xIsHidden: Bool = false {
+    var xIsHidden: Bool = true {
         didSet {
-            xIsHidden ? x.fadeOut(duration: 0.2) : x.fadeIn(duration: 0.2)
+            xIsHidden ? x.fadeOutResized(duration: 0.2) : x.fadeInResized(duration: 0.2)
         }
     }
     
-    var lockIsHidden: Bool = false {
+    var lockIsHidden: Bool = true {
         didSet {
-            lockIsHidden ? lock.fadeOut(duration: 0.2) : lock.fadeIn(duration: 0.2)
+            lockIsHidden ? lock.fadeOutResized(duration: 0.2) : lock.fadeInResized(duration: 0.2)
         }
     }
     
-    var plusIsHidden: Bool = false {
+    var plusIsHidden: Bool = true {
         didSet {
-            plusIsHidden ? plus.fadeOut(duration: 0.2) : plus.fadeIn(duration: 0.2)
+            plusIsHidden ? plus.fadeOutResized(duration: 0.2) : plus.fadeInResized(duration: 0.2)
         }
     }
     
@@ -174,16 +186,15 @@ class StepCell: UICollectionViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        
+        cleanUp()
         configureTitleView()
-        configureArrowView()
         configureXView()
         configureLockView()
         configurePlusView()
+        configureArrowView()
     }
     
     override func prepareForReuse() {
-        super.prepareForReuse()
         cleanUp()
     }
     
@@ -218,7 +229,6 @@ class StepCell: UICollectionViewCell {
     func configureTitleView() {
         
         theTitle.adjustsFontForContentSizeCategory = true
-        self.sendSubview(toBack: theTitle)
     }
     
     func configureArrowView() {

@@ -23,6 +23,10 @@ class GoalFooter: UICollectionReusableView {
     // MARK: - CleanUp
     
     func cleanUp(){
+        
+        x.alpha = 0
+        plus.alpha = 0
+        arrow.alpha = 0
         self.main.shakeOff()
     }
     
@@ -40,18 +44,23 @@ class GoalFooter: UICollectionReusableView {
     
     func setViewToNormalMode() {
         
-        self.main.shakeOff()
         xIsHidden = true
         plusIsHidden = true
-        hasAnyTask ? (arrowIsHidden = false) : (arrowIsHidden = true)
+        hasAnyTask ? (arrowIsHidden = false) : (arrow.alpha = 0)
+        
+        guard main.layer.animation(forKey: "bounce") != nil else { return }
+        self.main.shakeOff()
+        
     }
     
     func setViewToEditingMode() {
         
-        self.main.shakeOn()
         xIsHidden = false
         plusIsHidden = false
         arrowIsHidden = true
+        
+        guard main.layer.animation(forKey: "bounce") == nil else { return }
+        self.main.shakeOn()
     }
     
     func setViewToRearrangementMode() {
@@ -59,6 +68,9 @@ class GoalFooter: UICollectionReusableView {
         xIsHidden = true
         plusIsHidden = true
         arrowIsHidden = true
+        
+        guard main.layer.animation(forKey: "bounce") == nil else { return }
+        self.main.shakeOn()
     }
     
     var goalState: Goal.State = .running {
@@ -117,20 +129,20 @@ class GoalFooter: UICollectionReusableView {
     
     var arrowIsHidden: Bool = false {
         didSet {
-            arrowIsHidden ? arrow.fadeOut(duration: 0.2) : arrow.fadeIn(duration: 0.2)
+            arrowIsHidden ? arrow.fadeOutResized(duration: 0.2) : arrow.fadeInResized(duration: 0.2)
         }
     }
     
     
-    var xIsHidden: Bool = false {
+    var xIsHidden: Bool = true {
         didSet {
-            xIsHidden ? x.fadeOut(duration: 0.2) : x.fadeIn(duration: 0.2)
+            xIsHidden ? x.fadeOutResized(duration: 0.2) : x.fadeInResized(duration: 0.2)
         }
     }
     
-    var plusIsHidden: Bool = false {
+    var plusIsHidden: Bool = true {
         didSet {
-            plusIsHidden ? plus.fadeOut(duration: 0.2) : plus.fadeIn(duration: 0.2)
+            plusIsHidden ? plus.fadeOutResized(duration: 0.2) : plus.fadeInResized(duration: 0.2)
         }
     }
     
@@ -145,7 +157,7 @@ class GoalFooter: UICollectionReusableView {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        
+        cleanUp()
         configureTitleView()
         configureArrowView()
         configureXView()

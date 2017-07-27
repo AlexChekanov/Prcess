@@ -10,21 +10,25 @@ import UIKit
 
 
 extension UIView {
-    func fadeIn(duration: TimeInterval) {
-        self.alpha = 0
-        self.isHidden = false
+    
+    func fadeInResized(duration: TimeInterval) {
+        guard self.alpha < 1 else { return }
+        
+        self.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+        
         UIView.animate(withDuration: duration) { [unowned self] in
+            self.transform = CGAffineTransform.identity
             self.alpha = 1
         }
     }
-}
-
-extension UIView {
-    func fadeOut(duration: TimeInterval) {
-        UIView.animate(withDuration: duration) { [unowned self] in
+    
+    func fadeOutResized(duration: TimeInterval) {
+        guard self.alpha > 0 else { return }
+        
+        UIView.animate(withDuration: duration, animations: { [unowned self] () -> Void in
+            self.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
             self.alpha = 0
-        }
-        self.isHidden = true
+            }, completion: nil)
     }
 }
 
