@@ -13,6 +13,7 @@ private let reuseFooterIdentifier = "Goal"
 
 class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     
+    
     enum CollectionState {
         case normal
         case editing
@@ -346,6 +347,7 @@ extension ProcessVC {
                 return
             }
             
+            //In case the movable cell jumps over several cells we have to recalculate sizes
             if abs(sourceIndexPath.row - destinationIndexPath.row) > 1 {
                 self.layoutCache.removeAll()
             } else {
