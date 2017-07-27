@@ -11,10 +11,31 @@ import UIKit
 private let reuseCellIdentifier = "Step"
 private let reuseFooterIdentifier = "Goal"
 
-class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
+protocol RefreshSizesCache: class {
+    var cellSizesCache: [IndexPath : CGSize] { get set }
+    func swapSizes(previousIndexPaths: IndexPath, targetIndexPaths: IndexPath)
+}
+
+
+class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, RefreshSizesCache {
     
     
-    var cellCache: [IndexPath : StepCell] = [:]
+    var cellSizesCache = [IndexPath : CGSize]() {
+        
+        didSet {
+            print ("Cache content: \(cellSizesCache as Any)")
+        }
+    }
+    
+    func swapSizes (previousIndexPaths: IndexPath, targetIndexPaths: IndexPath) {
+        
+        
+        let from: CGSize = cellSizesCache[previousIndexPaths]!
+        let to: CGSize = cellSizesCache[targetIndexPaths]!
+        
+        cellSizesCache[previousIndexPaths] = to
+        cellSizesCache[targetIndexPaths] = from
+    }
     
     enum CollectionState {
         case normal
@@ -42,8 +63,6 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         }
     }
     
-    var layoutCache = [IndexPath : CGSize]()
-    
     let lpgr = UILongPressGestureRecognizer()
     
     
@@ -54,7 +73,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     // MARK: - CleanUp
     
     func cleanUp() {
-        layoutCache.removeAll()
+        cellSizesCache.removeAll()
     }
     
     // MARK: - Initialization
@@ -82,7 +101,6 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         collectionView?.delegate = self
         
         self.definesPresentationContext = false
-        self.clearsSelectionOnViewWillAppear = true
     }
     
     func getData() {
@@ -171,8 +189,6 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
             
             guard collectionState == .rearrangement else { break }
             
-            cellCache = [:]
-            
             performBatchUpdates()
             
             collectionState = .normal
@@ -213,20 +229,27 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        
-        
         return collectionView.dequeueReusableCell(withReuseIdentifier: reuseCellIdentifier, for: indexPath) as! StepCell
-        
     }
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell,
                                  forItemAt indexPath: IndexPath) {
         
         guard let cell = cell as? StepCell else { return }
-        if indexPath.row == 0 { cell.isTheFirstCell = true } else { cell.isTheFirstCell = false }
-        print("updates at \(indexPath.row)")
-        cell.object = tasks?[indexPath.row]
+        if indexPath.item == 0 { cell.isTheFirstCell = true } else { cell.isTheFirstCell = false }
+        
+        cell.object = tasks?[indexPath.item]
         cell.cellState = collectionState
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let cell = (collectionView.cellForItem(at: indexPath) as? StepCell) else { return }
+        cell.updateTitle()
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        guard let cell = (collectionView.cellForItem(at: indexPath) as? StepCell) else { return }
+        cell.updateTitle()
     }
     
     
@@ -245,15 +268,6 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         view.viewState = collectionState
     }
     
-    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let cell = (collectionView.cellForItem(at: indexPath) as? StepCell) else { return }
-        cell.updateTitle()
-    }
-    
-    override func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        guard let cell = (collectionView.cellForItem(at: indexPath) as? StepCell) else { return }
-        cell.updateTitle()
-    }
     
     // MARK: - UICollectionViewDelegate
     
@@ -316,15 +330,15 @@ extension ProcessVC: UICollectionViewDelegateFlowLayout {
         
         let cellHeight = (self.collectionView?.bounds.height)!*0.8
         
-        if layoutCache[indexPath] == nil {
+        if cellSizesCache[indexPath] == nil {
             
             let cell = StepCell()
-            let text = tasks?[indexPath.row].title
+            let text = tasks?[indexPath.item].title
             
-            layoutCache[indexPath] = cell.getCellSize(fromText: text, withHeight: cellHeight)
+            cellSizesCache[indexPath] = cell.getCellSize(fromText: text, withHeight: cellHeight)
         }
         
-        return layoutCache[indexPath]!
+        return cellSizesCache[indexPath]!
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
@@ -364,22 +378,8 @@ extension ProcessVC {
                 return
             }
             
-            //In case the movable cell jumps over several cells we have to recalculate sizes
-            if abs(sourceIndexPath.row - destinationIndexPath.row) > 1 {
-                self.layoutCache.removeAll()
-            } else {
-                layoutCache[sourceIndexPath] = nil
-                layoutCache[destinationIndexPath] = nil
-            }
-            
             //Update external data
-            data.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
-            
-            guard let sourceCell = (collectionView.cellForItem(at: sourceIndexPath) as? StepCell) else  { return }
-            cellCache[sourceIndexPath] = sourceCell
-            
-            guard let destinationCell = (collectionView.cellForItem(at: destinationIndexPath) as? StepCell) else  { return }
-            cellCache[destinationIndexPath] = destinationCell
+            data.moveItem(at: sourceIndexPath.item, to: destinationIndexPath.item)
             
             //Update internal data
             tasks = (data.currentGoal?.tasks)!
@@ -394,8 +394,17 @@ extension UICollectionViewFlowLayout {
         
         let context = super.invalidationContext(forInteractivelyMovingItems: targetIndexPaths, withTargetPosition: targetPosition, previousIndexPaths: previousIndexPaths, previousPosition: previousPosition)
         
-        if previousIndexPaths.first!.row != targetIndexPaths.first!.row {
+        if previousIndexPaths.first!.item != targetIndexPaths.first!.item {
             collectionView?.dataSource?.collectionView?(collectionView!, moveItemAt: previousIndexPaths.first!, to: targetIndexPaths.last!)
+            
+            let collection = collectionView?.dataSource as? RefreshSizesCache
+            
+            // In case the movable cell jumps over several cells we have to recalculate sizes
+            if abs(previousIndexPaths.first!.item - targetIndexPaths.last!.item) > 1 {
+                collection?.cellSizesCache.removeAll()
+            } else {
+                collection?.swapSizes(previousIndexPaths: previousIndexPaths.first!, targetIndexPaths: targetIndexPaths.last!)
+            }
         }
         
         return context
@@ -428,7 +437,7 @@ extension ProcessVC {
             
             self.resignFirstResponder()
             if (self.collectionState == .rearrangement) { self.collectionState = .normal }
-            self.layoutCache.removeAll()
+            self.cellSizesCache.removeAll()
             self.collectionViewLayout.invalidateLayout()
             self.performBatchUpdates()
             self.setCollectionViewMode()
