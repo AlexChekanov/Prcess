@@ -194,15 +194,15 @@ class StepCell: UICollectionViewCell {
         cleanUp()
     }
     
-    //    override var isSelected: Bool {
-    //
-    //        didSet {
-    //            updateTitle()
-    //        }
-    //
-    //
-    //        //ToDo: - send delegate!
-    //    }
+//    override var isSelected: Bool {
+//        
+//        didSet {
+//            updateTitle()
+//        }
+//        
+//        
+//        //ToDo: - send delegate!
+//    }
     
     func updateTitle () {
         

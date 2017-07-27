@@ -11,10 +11,26 @@ import UIKit
 private let reuseCellIdentifier = "Step"
 private let reuseFooterIdentifier = "Goal"
 
+//
+
+public protocol YJWaterLayoutModelable {
+    var size: CGSize {get}
+}
+
+
+
+//
+
+
+struct ItemLayout: YJWaterLayoutModelable {
+    var size: CGSize
+}
+
+
+
 class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     
-    
-    var cellCache: [IndexPath : StepCell] = [:]
+    var datas: [YJWaterLayoutModelable] = [YJWaterLayoutModelable]()
     
     enum CollectionState {
         case normal
@@ -89,6 +105,21 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         
         goal = data.currentGoal!
         tasks = data.currentGoal?.tasks
+        
+        guard let height = self.collectionView?.contentSize.height else { return }
+        let cellHeight = 0.8*height
+        print (cellHeight)
+        
+        //Get sizes
+        tasks?.forEach {
+            
+            let cell = StepCell()
+            let text = $0.title
+            
+            let cellWidth = cell.getCellSize(fromText: text, withHeight: cellHeight).width
+            
+            datas.append(ItemLayout(size: CGSize(width: cellWidth, height: cellHeight)))
+        }
     }
     
     
@@ -103,7 +134,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
             return
         }
         
-        self.collectionView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        //self.collectionView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.collectionView?.sizeToFit()
         
         self.getData()
@@ -171,8 +202,6 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
             
             guard collectionState == .rearrangement else { break }
             
-            cellCache = [:]
-            
             performBatchUpdates()
             
             collectionState = .normal
@@ -213,10 +242,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        
-        
         return collectionView.dequeueReusableCell(withReuseIdentifier: reuseCellIdentifier, for: indexPath) as! StepCell
-        
     }
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell,
@@ -224,7 +250,7 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
         
         guard let cell = cell as? StepCell else { return }
         if indexPath.row == 0 { cell.isTheFirstCell = true } else { cell.isTheFirstCell = false }
-        print("updates at \(indexPath.row)")
+        
         cell.object = tasks?[indexPath.row]
         cell.cellState = collectionState
     }
@@ -312,19 +338,9 @@ extension ProcessVC: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        guard ((self.collectionView?.frame.height) != nil) else { return CGSize.zero }
+        guard datas.count > 0 else { return CGSize.zero }
         
-        let cellHeight = (self.collectionView?.bounds.height)!*0.8
-        
-        if layoutCache[indexPath] == nil {
-            
-            let cell = StepCell()
-            let text = tasks?[indexPath.row].title
-            
-            layoutCache[indexPath] = cell.getCellSize(fromText: text, withHeight: cellHeight)
-        }
-        
-        return layoutCache[indexPath]!
+        return CGSize(width: datas[indexPath.item].size.width, height: datas[indexPath.item].size.height)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
@@ -375,11 +391,6 @@ extension ProcessVC {
             //Update external data
             data.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
             
-            guard let sourceCell = (collectionView.cellForItem(at: sourceIndexPath) as? StepCell) else  { return }
-            cellCache[sourceIndexPath] = sourceCell
-            
-            guard let destinationCell = (collectionView.cellForItem(at: destinationIndexPath) as? StepCell) else  { return }
-            cellCache[destinationIndexPath] = destinationCell
             
             //Update internal data
             tasks = (data.currentGoal?.tasks)!

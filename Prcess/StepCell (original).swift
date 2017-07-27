@@ -12,7 +12,7 @@ class StepCell: UICollectionViewCell {
     
     // MARK: - @IBOutlets
     
-    @IBOutlet weak var theTitle: UILabel!
+    @IBOutlet private weak var theTitle: UILabel!
     @IBOutlet private weak var arrow: UILabel!
     @IBOutlet private weak var x: UIButton!
     @IBOutlet private weak var plus: UIButton!
@@ -27,9 +27,6 @@ class StepCell: UICollectionViewCell {
     func cleanUp(){
         
         title = nil
-        theTitle.text = nil
-        theTitle.attributedText = nil
-        isSelected = false
         x.alpha = 0
         plus.alpha = 0
         lock.alpha = 0
@@ -52,7 +49,7 @@ class StepCell: UICollectionViewCell {
     
     func setCellToNormalMode() {
         
-        updateTitle() //isSelected ? (isSelected = true) : (isSelected = false) //Title needs update
+        
         lock.alpha == 0 ? () : (lockIsHidden = true)
         x.alpha == 0 ? () : (xIsHidden = true)
         plus.alpha == 0 ? () : (plusIsHidden = true)
@@ -66,7 +63,7 @@ class StepCell: UICollectionViewCell {
     
     func setCellToEditingMode() {
         
-        updateTitle()//isSelected ? (isSelected = false) : ()
+        isSelected ? (isSelected = false) : ()
         lockIsHidden = canBeDeleted
         xIsHidden = !canBeDeleted
         plus.alpha == 0  ? (plusIsHidden = false) : ()
@@ -78,7 +75,7 @@ class StepCell: UICollectionViewCell {
     
     func setCellToRearrangementMode() {
         
-        updateTitle()
+        isSelected ? (isSelected = false) : ()
         lockIsHidden = canBeMoved
         x.alpha == 0 ? () : (xIsHidden = true)
         plus.alpha == 0 ? () : (plusIsHidden = true)
@@ -138,7 +135,14 @@ class StepCell: UICollectionViewCell {
     var title: NSMutableAttributedString? = nil {
         didSet {
             
-            updateTitle()
+            if isSelected && (cellState == .normal) {
+                
+                title?.applyAttributes(ofStyle: selectedTextStyle)
+            } else {
+                title?.applyAttributes(ofStyle: deselectedTextStyle)
+            }
+            
+            theTitle.attributedText = title
         }
     }
     
@@ -194,27 +198,16 @@ class StepCell: UICollectionViewCell {
         cleanUp()
     }
     
-    //    override var isSelected: Bool {
-    //
-    //        didSet {
-    //            updateTitle()
-    //        }
-    //
-    //
-    //        //ToDo: - send delegate!
-    //    }
-    
-    func updateTitle () {
+    override var isSelected: Bool {
         
-        if isSelected && (cellState == .normal) {
+        didSet {
             
-            title?.applyAttributes(ofStyle: selectedTextStyle)
-        }else {
-            
-            title?.applyAttributes(ofStyle: deselectedTextStyle)
+            let a = title
+            title = a
         }
         
-        theTitle.attributedText = title
+        
+        //ToDo: - send delegate!
     }
     
     
