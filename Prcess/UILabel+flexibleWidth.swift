@@ -132,7 +132,7 @@ extension UILabel {
                         
                     }
                     
-                    if (widthJumps.count > 1) && (optimalWidth/widthJumps.last! >= 0.72) {optimalWidth = widthJumps.last!}
+                    if (widthJumps.count > 1) && (optimalWidth/widthJumps.last! >= 0.68) {optimalWidth = widthJumps.last!}
                     
                     
                     frameToReturn = CGRect(origin: CGPoint.zero, size: CGSize(width: optimalWidth+constantElementsWidth, height: optimalHeight))

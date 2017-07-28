@@ -85,7 +85,7 @@ class Data {
     
     var currentGoal: Goal?
     
-    let currentGoalIndex: Int = 1
+    let currentGoalIndex: Int = 0
     
     init() {
 

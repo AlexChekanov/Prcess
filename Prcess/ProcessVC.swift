@@ -1,41 +1,25 @@
-//
-//  ProcessVC.swift
-//  Prcess
-//
-//  Created by Alexey Chekanov on 7/3/17.
-//  Copyright © 2017 Alexey Chekanov. All rights reserved.
-//
-
-import UIKit
-
-private let reuseCellIdentifier = "Step"
-private let reuseFooterIdentifier = "Goal"
-
-protocol RefreshSizesCache: class {
-    var cellSizesCache: [IndexPath : CGSize] { get set }
-    func swapSizes(previousIndexPaths: IndexPath, targetIndexPaths: IndexPath)
-}
-
-
-class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, RefreshSizesCache {
+  //
+  //  ProcessVC.swift
+  //  Prcess
+  //
+  //  Created by Alexey Chekanov on 7/3/17.
+  //  Copyright © 2017 Alexey Chekanov. All rights reserved.
+  //
+  
+  import UIKit
+  
+  private let reuseCellIdentifier = "Step"
+  private let reuseFooterIdentifier = "Goal"
+  
+  
+  class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate {
     
     
-    var cellSizesCache = [IndexPath : CGSize]() {
-        
-        didSet {
-            print ("Cache content: \(cellSizesCache as Any)")
-        }
-    }
+    var datas: [CGFloat] = [CGFloat]()
     
-    func swapSizes (previousIndexPaths: IndexPath, targetIndexPaths: IndexPath) {
-        
-        
-        let from: CGSize = cellSizesCache[previousIndexPaths]!
-        let to: CGSize = cellSizesCache[targetIndexPaths]!
-        
-        cellSizesCache[previousIndexPaths] = to
-        cellSizesCache[targetIndexPaths] = from
-    }
+    var tmpDatas: [CGFloat]?
+    
+    
     
     enum CollectionState {
         case normal
@@ -73,7 +57,10 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, Refres
     // MARK: - CleanUp
     
     func cleanUp() {
-        cellSizesCache.removeAll()
+        
+        datas.removeAll()
+        tmpDatas = nil
+        
     }
     
     // MARK: - Initialization
@@ -107,6 +94,20 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, Refres
         
         goal = data.currentGoal!
         tasks = data.currentGoal?.tasks
+        
+        buildCellSizesCache()
+    }
+    
+    func buildCellSizesCache () {
+        
+        datas.removeAll()
+        
+        tasks?.forEach {
+            
+            let cell = StepCell()
+            let cellWidth: CGFloat = cell.getCellSize(fromText: $0.title, withHeight: ((collectionView?.bounds.height)!*0.8)).width
+            datas.append(cellWidth)
+        }
     }
     
     
@@ -121,9 +122,9 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, Refres
             return
         }
         
-        self.collectionView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        self.collectionView?.sizeToFit()
         
+//        NSNotificationCenter.defaultCenter().addObserver(self, selector: "orientationDidChange:", name: UIDeviceOrientationDidChangeNotification, object: nil)
+//        
         self.getData()
         self.setting()
         self.cleanUp()
@@ -165,6 +166,8 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, Refres
             
             guard let selectedIndexPath = self.collectionView?.indexPathForItem(at: gesture.location(in: self.collectionView)) else { break }
             
+            tmpDatas = datas
+            
             selectedCellCenter = (collectionView?.layoutAttributesForItem(at: selectedIndexPath)?.center)!
             gestureFirstPoint = gesture.location(in: self.collectionView)
             
@@ -192,6 +195,8 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, Refres
             performBatchUpdates()
             
             collectionState = .normal
+            
+            tmpDatas = nil
             
             δX = 0.0
             δY = 0.0
@@ -317,33 +322,31 @@ class ProcessVC: UICollectionViewController, UIGestureRecognizerDelegate, Refres
      // Pass the selected object to the new view controller.
      }
      */
-}
-
-
-// MARK: - Layout
-
-extension ProcessVC: UICollectionViewDelegateFlowLayout {
+  }
+  
+  
+  // MARK: - Layout
+  
+  extension ProcessVC: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        guard ((self.collectionView?.frame.height) != nil) else { return CGSize.zero }
+        guard (self.collectionView?.bounds.height != nil) else { return CGSize.zero }
         
         let cellHeight = (self.collectionView?.bounds.height)!*0.8
         
-        if cellSizesCache[indexPath] == nil {
-            
-            let cell = StepCell()
-            let text = tasks?[indexPath.item].title
-            
-            cellSizesCache[indexPath] = cell.getCellSize(fromText: text, withHeight: cellHeight)
+        if let tmpDatas = tmpDatas {
+            return CGSize(width: tmpDatas[indexPath.item], height: cellHeight)
         }
         
-        return cellSizesCache[indexPath]!
+        if datas.count == 0 { buildCellSizesCache() }
+        
+        return CGSize(width: datas[indexPath.item], height: cellHeight)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
         
-        guard ((self.collectionView?.frame.height) != nil) else { return CGSize.zero }
+        guard ((self.collectionView?.bounds.height) != nil) else { return CGSize.zero }
         
         let footerHeight = (self.collectionView?.bounds.height)!*0.8
         let footer = GoalFooter()
@@ -351,12 +354,12 @@ extension ProcessVC: UICollectionViewDelegateFlowLayout {
         
         return footerSize
     }
-}
-
-
-// MARK: - Reorder
-
-extension ProcessVC {
+  }
+  
+  
+  // MARK: - Reorder
+  
+  extension ProcessVC {
     
     // Chek if the cell is movable
     
@@ -375,19 +378,28 @@ extension ProcessVC {
         if #available(iOS 9.0, *) {
             
             if self.lpgr.state == .ended {
+                
+                // Update external data
+                datas = tmpDatas!
+                tmpDatas = nil
+                
+                data.moveItem(at: sourceIndexPath.item, to: destinationIndexPath.item)
+                tasks = (data.currentGoal?.tasks)!
+                
+                collectionView.collectionViewLayout.invalidateLayout()
+                self.collectionView?.visibleCells.forEach { $0.layoutIfNeeded() }
                 return
             }
             
-            //Update external data
-            data.moveItem(at: sourceIndexPath.item, to: destinationIndexPath.item)
             
-            //Update internal data
-            tasks = (data.currentGoal?.tasks)!
+            let temp = tmpDatas!.remove(at: sourceIndexPath.item)
+            tmpDatas!.insert(temp, at: destinationIndexPath.item)
+            
         }
     }
-}
-
-extension UICollectionViewFlowLayout {
+  }
+  
+  extension UICollectionViewFlowLayout {
     
     @available(iOS 9.0, *)
     open override func invalidationContext(forInteractivelyMovingItems targetIndexPaths: [IndexPath], withTargetPosition targetPosition: CGPoint, previousIndexPaths: [IndexPath], previousPosition: CGPoint) -> UICollectionViewLayoutInvalidationContext {
@@ -396,15 +408,6 @@ extension UICollectionViewFlowLayout {
         
         if previousIndexPaths.first!.item != targetIndexPaths.first!.item {
             collectionView?.dataSource?.collectionView?(collectionView!, moveItemAt: previousIndexPaths.first!, to: targetIndexPaths.last!)
-            
-            let collection = collectionView?.dataSource as? RefreshSizesCache
-            
-            // In case the movable cell jumps over several cells we have to recalculate sizes
-            if abs(previousIndexPaths.first!.item - targetIndexPaths.last!.item) > 1 {
-                collection?.cellSizesCache.removeAll()
-            } else {
-                collection?.swapSizes(previousIndexPaths: previousIndexPaths.first!, targetIndexPaths: targetIndexPaths.last!)
-            }
         }
         
         return context
@@ -423,29 +426,28 @@ extension UICollectionViewFlowLayout {
         
         return attributes
     }
-}
-
-
-// MARK: - Rotation
-
-extension ProcessVC {
+  }
+  
+  
+  // MARK: - Rotation
+  
+  extension ProcessVC {
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        coordinator.animate(alongsideTransition: nil, completion: {
-            _ in
-            
-            self.resignFirstResponder()
-            if (self.collectionState == .rearrangement) { self.collectionState = .normal }
-            self.cellSizesCache.removeAll()
-            self.collectionViewLayout.invalidateLayout()
-            self.performBatchUpdates()
-            self.setCollectionViewMode()
-        })
-    }
-}
+        
+//        self.buildCellSizesCache()
+//        
+//        self.collectionViewLayout.invalidateLayout()
+//        
+//        self.setCollectionViewMode()
 
-extension UICollectionViewFlowLayout {
+        self.datas.removeAll()
+        self.collectionView?.reloadData() //performBatchUpdates()
+    }
+  }
+  
+  extension UICollectionViewFlowLayout {
     override open func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         let oldBounds = collectionView?.bounds
         if newBounds.width != oldBounds?.width {
@@ -454,12 +456,12 @@ extension UICollectionViewFlowLayout {
         }
         return false
     }
-}
-
-
-// Mark: - Service methods
-
-extension ProcessVC {
+  }
+  
+  
+  // Mark: - Service methods
+  
+  extension ProcessVC {
     
     
     func performBatchUpdates() {
@@ -489,5 +491,5 @@ extension ProcessVC {
             header.viewState = collectionState
         }
     }
-}
-
+  }
+  
