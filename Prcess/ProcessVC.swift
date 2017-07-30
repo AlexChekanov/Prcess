@@ -206,12 +206,9 @@
             
         default:
             
+            
             collectionView?.cancelInteractiveMovement()
             
-            datas.removeAll()
-            tmpDatas = nil
-            
-            collectionViewLayout.invalidateLayout()
             performBatchUpdates()
             
             collectionState = .normal
@@ -469,47 +466,31 @@
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         collectionViewSizeChanged = true
-
         
-        
-        if self.collectionState != .rearrangement {
-            self.datas.removeAll()
-            self.tmpDatas = nil
-            collectionViewLayout.invalidateLayout()
-        }
-        
-//
-//        performBatchUpdates()
-//                        collectionView?.reloadData()
-        
+        self.datas.removeAll()
+        self.tmpDatas = nil
+        collectionViewLayout.invalidateLayout()
     }
-    
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         
         if collectionViewSizeChanged {
-//            self.datas.removeAll()
-//            self.tmpDatas = nil
-//            collectionViewLayout.invalidateLayout()
-//           
-            //            collectionView?.reloadData()
+         
+            self.collectionView?.layoutIfNeeded()
         }
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
+        
         if collectionViewSizeChanged && self.collectionState != .rearrangement {
-            collectionViewSizeChanged = false
             
-            
-            //collectionView?.reloadData()
             performBatchUpdates()
-            //collectionState = .normal
         }
+        collectionViewSizeChanged = false
     }
-    
   }
   
   
