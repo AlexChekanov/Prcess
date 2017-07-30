@@ -19,6 +19,7 @@
     
     var tmpDatas: [CGFloat]?
     
+    var collectionViewSizeChanged: Bool = false
     
     
     enum CollectionState {
@@ -123,8 +124,8 @@
         }
         
         
-//        NSNotificationCenter.defaultCenter().addObserver(self, selector: "orientationDidChange:", name: UIDeviceOrientationDidChangeNotification, object: nil)
-//        
+        //        NSNotificationCenter.defaultCenter().addObserver(self, selector: "orientationDidChange:", name: UIDeviceOrientationDidChangeNotification, object: nil)
+        //
         self.getData()
         self.setting()
         self.cleanUp()
@@ -155,6 +156,7 @@
     var δY: CGFloat = 0.0
     
     func handleLongPress(_ gesture: UILongPressGestureRecognizer){
+        
         
         switch(gesture.state) {
             
@@ -201,10 +203,21 @@
             δX = 0.0
             δY = 0.0
             
+            
         default:
             
             collectionView?.cancelInteractiveMovement()
             
+            datas.removeAll()
+            tmpDatas = nil
+            
+            collectionViewLayout.invalidateLayout()
+            performBatchUpdates()
+            
+            collectionState = .normal
+            
+            δX = 0.0
+            δY = 0.0
         }
     }
     
@@ -334,14 +347,19 @@
         guard (self.collectionView?.bounds.height != nil) else { return CGSize.zero }
         
         let cellHeight = (self.collectionView?.bounds.height)!*0.8
+        var cellWidth: CGFloat = 0.0
         
         if let tmpDatas = tmpDatas {
-            return CGSize(width: tmpDatas[indexPath.item], height: cellHeight)
+            
+            cellWidth = tmpDatas[indexPath.item]
+            
+        } else {
+            
+            if datas.count == 0 { buildCellSizesCache() }
+            cellWidth = datas[indexPath.item]
         }
         
-        if datas.count == 0 { buildCellSizesCache() }
-        
-        return CGSize(width: datas[indexPath.item], height: cellHeight)
+        return CGSize(width: cellWidth, height: cellHeight)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
@@ -386,15 +404,11 @@
                 data.moveItem(at: sourceIndexPath.item, to: destinationIndexPath.item)
                 tasks = (data.currentGoal?.tasks)!
                 
-                collectionView.collectionViewLayout.invalidateLayout()
-                self.collectionView?.visibleCells.forEach { $0.layoutIfNeeded() }
                 return
             }
             
-            
             let temp = tmpDatas!.remove(at: sourceIndexPath.item)
             tmpDatas!.insert(temp, at: destinationIndexPath.item)
-            
         }
     }
   }
@@ -431,31 +445,71 @@
   
   // MARK: - Rotation
   
+  
+  //  extension UICollectionViewFlowLayout {
+  //    override open func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+  //        let oldBounds = collectionView?.bounds
+  //        if newBounds.width != oldBounds?.width {
+  //
+  //
+  ////            let delegate = collectionView?.delegate as? ProcessVC
+  ////            delegate?.datas.removeAll()
+  ////            delegate?.tmpDatas = nil
+  //
+  //            //collectionView?.reloadData()
+  //
+  //            return true
+  //        }
+  //        return false
+  //    }
+  //  }
+  
   extension ProcessVC {
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        
-//        self.buildCellSizesCache()
-//        
-//        self.collectionViewLayout.invalidateLayout()
-//        
-//        self.setCollectionViewMode()
+        collectionViewSizeChanged = true
 
-        self.datas.removeAll()
-        self.collectionView?.reloadData() //performBatchUpdates()
-    }
-  }
-  
-  extension UICollectionViewFlowLayout {
-    override open func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        let oldBounds = collectionView?.bounds
-        if newBounds.width != oldBounds?.width {
-            
-            return true
+        
+        
+        if self.collectionState != .rearrangement {
+            self.datas.removeAll()
+            self.tmpDatas = nil
+            collectionViewLayout.invalidateLayout()
         }
-        return false
+        
+//
+//        performBatchUpdates()
+//                        collectionView?.reloadData()
+        
     }
+    
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        
+        if collectionViewSizeChanged {
+//            self.datas.removeAll()
+//            self.tmpDatas = nil
+//            collectionViewLayout.invalidateLayout()
+//           
+            //            collectionView?.reloadData()
+        }
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        if collectionViewSizeChanged && self.collectionState != .rearrangement {
+            collectionViewSizeChanged = false
+            
+            
+            //collectionView?.reloadData()
+            performBatchUpdates()
+            //collectionState = .normal
+        }
+    }
+    
   }
   
   
@@ -465,6 +519,8 @@
     
     
     func performBatchUpdates() {
+        
+        
         
         self.collectionView?.performBatchUpdates(
             { self.collectionView?.reloadSections(NSIndexSet(index: 0) as IndexSet)
