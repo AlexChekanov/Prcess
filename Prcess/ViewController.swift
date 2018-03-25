@@ -118,6 +118,7 @@ extension ViewController: ProcessControlDataSource {
 
 extension ViewController: ProcessControlDelegate {
     
+    // Add
     func addItemToEnd() {
         print("Item to the end should be added")
     }
@@ -125,13 +126,23 @@ extension ViewController: ProcessControlDelegate {
     func addItemAt(at index: Int) {
         print("Item at index:\(index) should be added")
     }
-    
+
+    // Remove
     func removeItem(at index: Int) {
         print("Item at \(index) should be removed")
     }
     
     func rejectRemoval(at index: Int) {
         print("The removal of the #\(index) item is not allowed")
+    }
+    
+    // Edit
+    func editItem(at index: Int) {
+        print("Item at \(index) should be edited")
+    }
+    
+    func editScript() {
+        print("Script should be edited")
     }
     
     // Rearrangement

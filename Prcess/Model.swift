@@ -26,7 +26,6 @@ class Task: NSObject {
     }
 }
 
-
 class Goal {
     
     enum State {
@@ -74,7 +73,7 @@ class Process {
     
     var goals: [Goal]
     var currentGoal: Goal?
-    let currentGoalIndex: Int = 0
+    let currentGoalIndex: Int = 1
     
     init() {
 
@@ -87,7 +86,6 @@ class Process {
             Task(title: "Любой длинный текст, который нормальные люди в заголовок не напишут", order: 3, state: .running, canBeMoved: true, canBeDeleted: true),
             Task(title: "i", order: 4, state: .running, canBeMoved: true, canBeDeleted: true),
         ]
-
         
         taskSet2 = [
             
@@ -111,7 +109,6 @@ class Process {
             Task(title: "Assemble", order: 4, state: .running, canBeMoved: true, canBeDeleted: true),
         ]
 
-        
         goals = [
             
             Goal(title: "Неприлично длинная по своей формулировке цель", state: .running, tasks: taskSet1), //Get rid of the car
@@ -135,13 +132,10 @@ class Process {
     
     func reorder() {
         
-        
         for (index, task) in (currentGoal?.tasks?.enumerated())! {
             
             task.order = index
-            
         }
-        
     }
 }
 
